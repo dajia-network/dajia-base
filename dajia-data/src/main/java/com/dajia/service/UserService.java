@@ -12,6 +12,7 @@ import com.dajia.util.UserUtils;
 import com.dajia.vo.LoginUserVO;
 import com.dajia.vo.SalesIndicatorVO;
 import com.dajia.vo.SalesVO;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,6 +102,53 @@ public class UserService {
 
 		return user;
 	}
+
+	/**
+	 * 用户名密码登录
+	 *
+	 * @param loginUserVO
+	 * @return
+	 */
+	public User userPassLogin(LoginUserVO loginUserVO) {
+
+		if (null == loginUserVO) {
+			logger.error("login failed, type={}, error={}", "userPass", "input loginUserVo is null");
+			return null;
+		}
+
+		if (StringUtils.isEmpty(loginUserVO.userName)) {
+			logger.error("login failed, type={}, user={}, error={}", "userPass", loginUserVO, "username is empty");
+			return null;
+		}
+
+		if (StringUtils.isEmpty(loginUserVO.password)) {
+			logger.error("login failed, type={}, user={}, error={}", "userPass", loginUserVO, "password is empty");
+			return null;
+		}
+
+		loginUserVO.password = EncodingUtil.encode("SHA1", loginUserVO.password);
+
+		try {
+			User user = userRepo.findByUserNameAndPasswordAndIsActiveAndIsAdmin(loginUserVO.userName, loginUserVO.password, CommonUtils.Y, CommonUtils.Y);
+
+			if(null == user) {
+				logger.error("login failed, type={}, user={}, error={}", "userPass", loginUserVO, "no such user, check username, password, active, isAdmin");
+				return null;
+			}
+
+			user.lastVisitDate = loginUserVO.loginDate;
+			user.lastVisitIP = loginUserVO.loginIP;
+
+			logger.info("login succeed, type={}, user={}", "userPass", loginUserVO);
+			return user;
+
+		} catch (Exception ex) {
+			logger.error("login failed, type={}, user={}, error={}", "userPass", loginUserVO, "db error: " + ex.getMessage());
+			return null;
+		}
+	}
+
+
 
 	public String userLogout(Long userId, HttpServletRequest request) {
 		String returnVal = CommonUtils.return_val_failed;

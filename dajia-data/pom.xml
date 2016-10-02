@@ -91,6 +91,10 @@
             <groupId>javax.transaction</groupId>
             <artifactId>javax.transaction-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
 
         <!-- vendors -->
         <!-- ping++ -->
@@ -111,7 +115,7 @@
         <dependency>
             <groupId>com.dajia.core</groupId>
             <artifactId>dajia-common</artifactId>
-            <version>${parent.version}</version>
+            <version>${project.version}</version>
         </dependency>
 
     </dependencies>
