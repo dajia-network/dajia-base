@@ -548,4 +548,7 @@ public class CommonUtils {
 			return value;
 		}
 	}
+
+	public static String Y = YesNoStatus.YES.toString();
+	public static String N = YesNoStatus.NO.toString();
 }

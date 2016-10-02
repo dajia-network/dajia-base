@@ -91,6 +91,10 @@
             <groupId>javax.transaction</groupId>
             <artifactId>javax.transaction-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
 
         <!-- vendors -->
         <!-- ping++ -->
