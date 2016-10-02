@@ -111,6 +111,7 @@
         <dependency>
             <groupId>com.dajia.core</groupId>
             <artifactId>dajia-common</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
     </dependencies>
