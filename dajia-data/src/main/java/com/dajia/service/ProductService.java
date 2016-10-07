@@ -443,6 +443,7 @@ public class ProductService {
 	 * @param productItems
 	 * @param date
 	 */
+	@Transactional
 	public void doExpireProductItems(List<ProductItem> productItems, Date date) {
 
 		String jobToken = dateFormat.format(date);
