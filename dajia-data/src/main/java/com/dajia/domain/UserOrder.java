@@ -95,6 +95,6 @@ public class UserOrder extends BaseModel {
 	@Column(name = "admin_comments")
 	public String adminComments;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "userOrder", fetch = FetchType.LAZY)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "userOrder", fetch = FetchType.EAGER)
 	public List<UserOrderItem> orderItems;
 }
