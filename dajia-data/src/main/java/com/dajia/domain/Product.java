@@ -48,6 +48,6 @@ public class Product extends BaseModel {
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "product", fetch = FetchType.EAGER)
 	public List<ProductImage> productImages;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "product", fetch = FetchType.LAZY)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "product", fetch = FetchType.EAGER)
 	public List<ProductItem> productItems;
 }
