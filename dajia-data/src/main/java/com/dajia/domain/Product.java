@@ -45,9 +45,9 @@ public class Product extends BaseModel {
 	@Column(name = "img_url_list")
 	public String imgUrl4List;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "product", fetch = FetchType.EAGER)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "product", fetch = FetchType.LAZY)
 	public List<ProductImage> productImages;
 
-	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "product", fetch = FetchType.EAGER)
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "product", fetch = FetchType.LAZY)
 	public List<ProductItem> productItems;
 }
