@@ -289,4 +289,27 @@ public class UserService {
 		}
 		return null;
 	}
+
+	/**
+	 * 修改用户密码
+	 *
+	 * @param userId
+	 * @param oldPass
+	 * @param newPass
+	 * @return
+	 */
+	public boolean updateUserPassword(Long userId, String oldPass, String newPass) {
+		String encodedOldPass = EncodingUtil.encode("SHA1", oldPass);
+		String encodedNewPass = EncodingUtil.encode("SHA1", newPass);
+		logger.info("update user password, userId={}, oldPass={}, newPass={}", userId, encodedOldPass, encodedNewPass);
+
+		int updateCount = 0;
+		try {
+			updateCount = userRepo.updateUserPass(userId, encodedOldPass, encodedNewPass);
+			logger.info("update user password result, userId={}, result={}", userId, updateCount);
+		} catch (Exception ex) {
+			logger.error("update user password failed, userId={}, reason={}", userId, ex.getMessage());
+		}
+		return updateCount > 0;
+	}
 }

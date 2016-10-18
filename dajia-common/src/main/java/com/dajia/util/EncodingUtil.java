@@ -31,6 +31,7 @@ public class EncodingUtil {
 	public static void main(String[] args) {
 		System.out.println("abcd MD5  :" + EncodingUtil.encode("MD5", "abcd"));
 		System.out.println("abcd SHA1 :" + EncodingUtil.encode("SHA1", "abcd"));
+		System.out.println("jjjj SHA1 :" + EncodingUtil.encode("SHA1", "jjjj"));
 	}
 
 }
