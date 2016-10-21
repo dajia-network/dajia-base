@@ -18,6 +18,8 @@ import java.util.List;
 import static com.dajia.util.ResultConstants.*;
 
 /**
+ * 用户优惠券领取、消费、作废服务
+ *
  * Created by huhaonan on 2016/10/20.
  */
 
@@ -89,15 +91,48 @@ public class UserCouponService {
     }
 
     /**
+     * 用户消费优惠券
+     *
+     * 调用这个函数的函数必须包含在一个事务中
+     *
+     * @param userId
+     * @param couponIds
+     * @return
+     */
+    public DajiaResult consumeUserCoupons (Long userId, Long orderId, List<Long> couponIds) {
+        
+        if (!userRepo.exists(userId)) {
+            return DajiaResult.inputError("消费优惠券失败,用户不存在", null);
+        }
+
+        // TODO 是否需要校验couponId是否存在
+        // TODO 如果传入了不存在的couponId 将导致coupon更新数量不正确
+        // TODO 可能导致优惠券使用失败
+
+        // 只能消费"未使用"状态的优惠券
+        try {
+            int consumed = userCouponRepo.batchUpdateStatusAndOrderId(userId, orderId, couponIds, UserCoupon.STATUS_USED, UserCoupon.STATUS_NOT_USED);
+            if (consumed != couponIds.size()) {
+                return DajiaResult.systemError("未能成功使用全部选中的优惠券", null, null);
+            }
+            return DajiaResult.success();
+        } catch (Exception ex) {
+            return DajiaResult.systemError("消费优惠券失败,系统异常", null, ex);
+        }
+    }
+
+    /**
      * 查找用户手上的优惠券
      *
      * @param userId
      * @return
      */
     public DajiaResult getUserCoupons(Long userId, Pageable pageable) {
+
         if(!userRepo.exists(userId)) {
             return DajiaResult.notFound("获取优惠券列表失败,用户不存在", null);
         }
+
         try {
             Page<UserCoupon> coupons = userCouponRepo.findByUserId(userId, pageable);
             return DajiaResult.successReturn(COMMON_MSG_QUERY_OK, null, coupons);
@@ -115,7 +150,7 @@ public class UserCouponService {
      * @param productItems
      * @return
      */
-    public DajiaResult getAvailableConpons(Long userId, List<Long> productItems) {
+    public DajiaResult getAvailableConponsWhenBuy(Long userId, List<Long> productItems) {
         if(!userRepo.exists(userId)) {
             return DajiaResult.notFound("获取优惠券列表失败,用户不存在", null);
         }

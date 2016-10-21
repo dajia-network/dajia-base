@@ -18,6 +18,7 @@ import static com.dajia.util.ResultConstants.*;
 
 
 /**
+ * 优惠券Service
  *
  * Created by huhaonan on 2016/10/20.
  */
@@ -57,78 +58,34 @@ public class CouponService {
         return DajiaResult.successReturn(COMMON_MSG_SAVE_OK, null, coupon);
     }
 
-    /**
-     * 新建优惠券的校验
-     *
-     * @param example
-     * @return
-     */
-    private DajiaResult checkBeforeAdd(Coupon example) {
 
-        if (null == example) {
-            return DajiaResult.inputError("优惠券信息为空", null);
-        }
-
-        if (null == example.remain || example.remain <= 0) {
-            return DajiaResult.inputError("剩余数量必须大于0", null);
-        }
-
-        if (null == example.amount || example.amount <= 0) {
-            return DajiaResult.inputError("优惠券数量必须大于0", null);
-        }
-
-        if (!example.amount.equals(example.remain)) {
-            example.remain = example.amount;
-        }
-
-        if (example.gmtExpired == null) {
-            return DajiaResult.inputError("优惠券必须设置过期时间", null);
-        }
-
-        // TODO 过期时间应该是按天计算
-        if (example.gmtExpired.before(new Date())) {
-            return DajiaResult.inputError("优惠券过期时间不能早于当前时间", null);
-        }
-
-        if (example.value <= 0) {
-            return DajiaResult.inputError("优惠券金额必须大于0", null);
-        }
-
-        if (example.type <= 0) {
-            return DajiaResult.inputError("非法的优惠券类型", null);
-        }
-
-        if (!example.isActive()) {
-            return DajiaResult.inputError("新建优惠券的状态必须是可用", null);
-        }
-
-        return DajiaResult.success();
-    }
 
     /**
      * 修改优惠券
      *
-     * @param couponId
      * @param example
      * @return
      */
-    public DajiaResult updateCoupon (long couponId, Coupon example) {
+    public DajiaResult updateCoupon (Coupon example) {
 
-        Coupon c;
+        DajiaResult checkResult = checkBeforeUpdate(example);
 
-        try {
-            c = couponRepo.findOne(couponId);
-            if (null == c) {
-                return DajiaResult.notFound("该优惠券ID不存在", null);
-            }
-        } catch (Exception ex) {
-            return DajiaResult.systemError(COMMON_MSG_QUERY_FAILED, null, ex);
+        if (!checkResult.succeed) {
+            return checkResult;
         }
 
-        DajiaResult result = copy(c, example);
+        DajiaResult findResult = findOne(example.id);
 
-        if(!result.succeed) {
-            return result;
+        if (!findResult.succeed) {
+            return findResult;
+        }
+
+        Coupon c = (Coupon) findResult.data;
+
+        DajiaResult copyResult = copy(c, example);
+
+        if(!copyResult.succeed) {
+            return copyResult;
         }
 
         try {
@@ -150,9 +107,12 @@ public class CouponService {
      */
     @Transactional
     public DajiaResult cancelCoupon (long couponId) {
+
         Coupon example = new Coupon();
+        example.id = couponId;
         example.status = Coupon.STATUS_CANCELED;
-        DajiaResult result = updateCoupon(couponId, example);
+
+        DajiaResult result = updateCoupon(example);
 
         if(!result.succeed) {
             return result;
@@ -164,8 +124,7 @@ public class CouponService {
             return DajiaResult.success().setMessages(String.format("%s, 共%d用户优惠券被取消", COMMON_MSG_UPDATE_OK, num), null, null);
 
         } catch (Exception ex) {
-            String msg = String.format("%s, action=%s, couponId=%d", COMMON_MSG_UPDATE_FAILED, "批量作废用户优惠券", couponId);
-            return DajiaResult.systemError(msg, null, ex);
+            return DajiaResult.systemError("批量取消优惠券失败,系统异常", null, ex);
         }
     }
 
@@ -176,6 +135,7 @@ public class CouponService {
      * @param example
      */
     private DajiaResult copy(Coupon c, Coupon example) {
+
         if (null == example) {
             return DajiaResult.inputError("example is null", null);
         }
@@ -220,7 +180,93 @@ public class CouponService {
     }
 
 
-    private boolean checkCouponExpiredDate(Date gmtExpired) {
-        return true;
+    /**
+     * 新建优惠券的校验
+     *
+     * @param example
+     * @return
+     */
+    private DajiaResult checkBeforeAdd(Coupon example) {
+        DajiaResult result = checkCoupon(example);
+        if (result.succeed) {
+            if (null == example.remain || example.remain < example.amount) {
+                example.remain = example.amount;
+            }
+        }
+        return result;
     }
+
+    /**
+     * 修改优惠券的校验
+     *
+     * @param example
+     * @return
+     */
+    public DajiaResult checkBeforeUpdate(Coupon example) {
+        return checkCoupon(example);
+    }
+
+    /**
+     * 优惠券的基础校验
+     *
+     * @param example
+     * @return
+     */
+    private DajiaResult checkCoupon(Coupon example) {
+        if (null == example) {
+            return DajiaResult.inputError("优惠券信息为空", null);
+        }
+
+        if (null == example.amount || example.amount <= 0) {
+            return DajiaResult.inputError("优惠券数量必须大于0", null);
+        }
+
+        if (!example.amount.equals(example.remain)) {
+            example.remain = example.amount;
+        }
+
+        if (example.gmtExpired == null) {
+            return DajiaResult.inputError("优惠券必须设置过期时间", null);
+        }
+
+        // TODO 过期时间应该是按天计算
+        if (example.gmtExpired.before(new Date())) {
+            return DajiaResult.inputError("优惠券过期时间不能早于当前时间", null);
+        }
+
+        if (example.value <= 0) {
+            return DajiaResult.inputError("优惠券金额必须大于0", null);
+        }
+
+        if (example.type <= 0) {
+            return DajiaResult.inputError("非法的优惠券类型", null);
+        }
+
+        if (!example.isActive()) {
+            return DajiaResult.inputError("新建优惠券的状态必须是可用", null);
+        }
+
+        return DajiaResult.success();
+    }
+
+    /**
+     * 按照ID查找
+     *
+     * @param couponId
+     * @return
+     */
+    public DajiaResult findOne(Long couponId) {
+        Coupon c;
+        try {
+            c = couponRepo.findOne(couponId);
+            if (null == c) {
+                return DajiaResult.notFound("该优惠券ID不存在", null);
+            }
+        } catch (Exception ex) {
+            return DajiaResult.systemError(COMMON_MSG_QUERY_FAILED, null, ex);
+        }
+        return DajiaResult.successReturn(null, null, c);
+    }
+
+
 }

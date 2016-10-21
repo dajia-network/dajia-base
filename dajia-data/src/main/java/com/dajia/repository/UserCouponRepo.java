@@ -54,4 +54,8 @@ public interface UserCouponRepo extends CrudRepository<UserCoupon, Long> {
     @Query("update UserCoupon uc set uc.status = :targetStatus where uc.couponId = :couponId")
     int batchUpdateStatusByCouponId(Long couponId, int targetStatus);
 
+    @Modifying
+    @Query("update UserCoupon uc set uc.status = :targetStatus, uc.orderId = :orderId where uc.userId = userId and uc.couponId in :couponIds and uc.status = :lastStatus")
+    int batchUpdateStatusAndOrderId(Long userId, Long orderId, List<Long> couponIds, int targetStatus, int lastStatus);
+
 }

@@ -92,7 +92,8 @@ public class DajiaResult implements Serializable {
      *      import DajiaResult.ResultConstant.*
      *
      *      DajiaResult failedResult = DajiaResult.fail()
-     *                                            .setFailFlags(TYPE_SYSTEM, LEVEL_LOG_ONLY, 404)
+     *                                            .setFailFlags(TYPE_SYSTEM, LEVEL_LOG_ONLY)
+     *                                            .setCode(404) //这个setCode按需要设置 也可以不设置
      *                                            .setMessages("用户不存在", null, "user not found for id 123");
      *
      *  也可以使用下面的便捷函数
