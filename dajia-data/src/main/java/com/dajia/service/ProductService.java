@@ -1,7 +1,42 @@
 package com.dajia.service;
 
-import com.dajia.domain.*;
-import com.dajia.repository.*;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.transaction.Transactional;
+
+import org.apache.commons.lang3.time.FastDateFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.RestTemplate;
+
+import com.dajia.domain.Price;
+import com.dajia.domain.Product;
+import com.dajia.domain.ProductImage;
+import com.dajia.domain.ProductItem;
+import com.dajia.domain.UserCart;
+import com.dajia.domain.UserFavourite;
+import com.dajia.domain.UserOrder;
+import com.dajia.domain.UserOrderItem;
+import com.dajia.repository.ProductItemRepo;
+import com.dajia.repository.ProductRepo;
+import com.dajia.repository.UserCartRepo;
+import com.dajia.repository.UserFavouriteRepo;
+import com.dajia.repository.UserOrderItemRepo;
+import com.dajia.repository.UserOrderRepo;
+import com.dajia.repository.UserRewardRepo;
 import com.dajia.util.ApiKdtUtils;
 import com.dajia.util.ApiWdUtils;
 import com.dajia.util.CommonUtils;
@@ -14,22 +49,6 @@ import com.dajia.vo.ProductVO;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.time.FastDateFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.client.RestTemplate;
-
-import javax.transaction.Transactional;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.*;
 
 @Service
 public class ProductService {
@@ -243,6 +262,7 @@ public class ProductService {
 		return productVO;
 	}
 
+	@Transactional
 	public ProductVO loadProductDetail(Long pid) {
 		Product product = productRepo.findOne(pid);
 		if (null == product) {
@@ -252,12 +272,13 @@ public class ProductService {
 		return convertProductVO(product, null);
 	}
 
+	@Transactional
 	public ProductVO loadProductDetailByItemId(Long itemId) {
+		logger.info("productItemId: " + itemId);
 		ProductItem pi = productItemRepo.findOne(itemId);
 		if (null == pi) {
 			return null;
 		}
-		pi.product.productImages.size();
 		return convertProductVO(pi.product, pi);
 	}
 
@@ -279,23 +300,20 @@ public class ProductService {
 	}
 
 	public List<ProductItem> loadAllValidProducts() {
-		List<ProductItem> productItems = productItemRepo
-				.findByProductStatusAndIsActiveOrderByExpiredDateAsc(ProductStatus.VALID.getKey(),
-						ActiveStatus.YES.toString());
+		List<ProductItem> productItems = productItemRepo.findByProductStatusAndIsActiveOrderByExpiredDateAsc(
+				ProductStatus.VALID.getKey(), ActiveStatus.YES.toString());
 		return productItems;
 	}
 
 	public List<ProductItem> loadAllExpiredProducts() {
-		List<ProductItem> productItems = productItemRepo
-				.findByProductStatusAndIsActiveOrderByExpiredDateAsc(ProductStatus.EXPIRED.getKey(),
-						ActiveStatus.YES.toString());
+		List<ProductItem> productItems = productItemRepo.findByProductStatusAndIsActiveOrderByExpiredDateAsc(
+				ProductStatus.EXPIRED.getKey(), ActiveStatus.YES.toString());
 		return productItems;
 	}
 
 	public List<ProductVO> loadAllValidProductsWithPrices() {
-		List<ProductItem> productItems = productItemRepo
-				.findByProductStatusAndIsActiveOrderByExpiredDateAsc(ProductStatus.VALID.getKey(),
-						ActiveStatus.YES.toString());
+		List<ProductItem> productItems = productItemRepo.findByProductStatusAndIsActiveOrderByExpiredDateAsc(
+				ProductStatus.VALID.getKey(), ActiveStatus.YES.toString());
 		for (ProductItem productItem : productItems) {
 			calcPrice(productItem);
 		}
@@ -421,8 +439,7 @@ public class ProductService {
 		for (UserFavourite favourite : favourites) {
 			productIds.add(favourite.productId);
 		}
-		List<Product> products = productRepo.findByProductIdInAndIsActive(productIds,
-				ActiveStatus.YES.toString());
+		List<Product> products = productRepo.findByProductIdInAndIsActive(productIds, ActiveStatus.YES.toString());
 		return products;
 	}
 
@@ -432,8 +449,7 @@ public class ProductService {
 		for (UserCart cartItem : cartItems) {
 			productIds.add(cartItem.productId);
 		}
-		List<Product> products = productRepo.findByProductIdInAndIsActive(productIds,
-				ActiveStatus.YES.toString());
+		List<Product> products = productRepo.findByProductIdInAndIsActive(productIds, ActiveStatus.YES.toString());
 		return products;
 	}
 

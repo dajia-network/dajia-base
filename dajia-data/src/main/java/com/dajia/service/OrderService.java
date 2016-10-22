@@ -1,11 +1,14 @@
 package com.dajia.service;
 
-import com.dajia.domain.*;
-import com.dajia.repository.*;
-import com.dajia.util.CommonUtils;
-import com.dajia.util.CommonUtils.ActiveStatus;
-import com.dajia.util.CommonUtils.OrderStatus;
-import com.dajia.vo.*;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +19,28 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.math.BigDecimal;
-import java.util.*;
+import com.dajia.domain.ProductItem;
+import com.dajia.domain.User;
+import com.dajia.domain.UserOrder;
+import com.dajia.domain.UserOrderItem;
+import com.dajia.domain.UserReward;
+import com.dajia.domain.UserShare;
+import com.dajia.repository.ProductItemRepo;
+import com.dajia.repository.UserContactRepo;
+import com.dajia.repository.UserOrderItemRepo;
+import com.dajia.repository.UserOrderRepo;
+import com.dajia.repository.UserRefundRepo;
+import com.dajia.repository.UserRepo;
+import com.dajia.repository.UserRewardRepo;
+import com.dajia.repository.UserShareRepo;
+import com.dajia.util.CommonUtils;
+import com.dajia.util.CommonUtils.ActiveStatus;
+import com.dajia.util.CommonUtils.OrderStatus;
+import com.dajia.vo.LoginUserVO;
+import com.dajia.vo.OrderFilterVO;
+import com.dajia.vo.OrderVO;
+import com.dajia.vo.ProductVO;
+import com.dajia.vo.ProgressVO;
 
 @Service
 public class OrderService {
@@ -227,6 +250,12 @@ public class OrderService {
 		}
 
 		return refundVal;
+	}
+
+	public void testCalcRefundValue(Long orderId) {
+		UserOrder userOrder = orderRepo.findOne(orderId);
+		BigDecimal refundValue = calculateRefundValue(userOrder);
+		logger.info("result: " + refundValue);
 	}
 
 	public void orderRefund(ProductItem productItem) {
