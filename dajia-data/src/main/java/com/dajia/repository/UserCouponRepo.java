@@ -47,12 +47,23 @@ public interface UserCouponRepo extends CrudRepository<UserCoupon, Long> {
      * @param pageable
      * @return
      */
-    Page<UserCoupon> findByUserId(Long userId, Pageable pageable);
+    Page<UserCoupon> findByUserIdOrderByStatusAscGmtExpiredDesc(Long userId, Pageable pageable);
+
+    /**
+     * TODO 是否需要指定status列表
+     *
+     * 查找用户手上是否已经有某张优惠券
+     *
+     * @param userId
+     * @param couponId
+     * @return
+     */
+    UserCoupon findByUserIdAndCouponId(Long userId, Long couponId);
 
 
     @Modifying
-    @Query("update UserCoupon uc set uc.status = :targetStatus where uc.couponId = :couponId")
-    int batchUpdateStatusByCouponId(Long couponId, int targetStatus);
+    @Query("update UserCoupon uc set uc.status = :targetStatus where uc.couponId = :couponId and uc.status = :originStatus")
+    int batchUpdateStatusByCouponId(Long couponId, int targetStatus, int originStatus);
 
     @Modifying
     @Query("update UserCoupon uc set uc.status = :targetStatus, uc.orderId = :orderId where uc.userId = userId and uc.couponId in :couponIds and uc.status = :lastStatus")

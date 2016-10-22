@@ -1,7 +1,7 @@
 package com.dajia.service;
 
 import com.dajia.domain.Coupon;
-import com.dajia.domain.UserCoupon;
+import com.dajia.domain.CouponConstants;
 import com.dajia.repository.CouponRepo;
 import com.dajia.repository.UserCouponRepo;
 import com.dajia.util.DajiaResult;
@@ -100,7 +100,7 @@ public class CouponService {
     /**
      * 取消优惠券
      *
-     * 此时需要需要还未使用的UserCoupon
+     * 此时需要取消还未使用的UserCoupon
      *
      * @param couponId
      * @return
@@ -110,7 +110,7 @@ public class CouponService {
 
         Coupon example = new Coupon();
         example.id = couponId;
-        example.status = Coupon.STATUS_CANCELED;
+        example.status = CouponConstants.STATUS_CANCELED;
 
         DajiaResult result = updateCoupon(example);
 
@@ -120,7 +120,7 @@ public class CouponService {
 
         // 批量作废 UserCoupon
         try {
-            int num = userCouponRepo.batchUpdateStatusByCouponId(couponId, UserCoupon.STATUS_CANCELED);
+            int num = userCouponRepo.batchUpdateStatusByCouponId(couponId, CouponConstants.STATUS_CANCELED, CouponConstants.STATUS_ACTIVE);
             return DajiaResult.success().setMessages(String.format("%s, 共%d用户优惠券被取消", COMMON_MSG_UPDATE_OK, num), null, null);
 
         } catch (Exception ex) {
@@ -144,8 +144,8 @@ public class CouponService {
             c.name = example.name;
         }
 
-        if (StringUtils.isNotEmpty(example.desc)) {
-            c.desc = example.desc;
+        if (StringUtils.isNotEmpty(example.comment)) {
+            c.comment = example.comment;
         }
 
         if (StringUtils.isNotEmpty(example.createdBy)) {
@@ -164,16 +164,38 @@ public class CouponService {
             c.modifiedDate = example.modifiedDate;
         }
 
-        if (example.amount >= 0) {
+        /**
+         * 优惠券总数一般要大于0
+         */
+        if (null != example.amount && example.amount > 0) {
             c.amount = example.amount;
         }
 
-        if (example.status > 0) {
+        if (null != example.status && example.status > 0) {
             c.status = example.status;
         }
 
-        if (example.remain >= 0) {
+        /**
+         * remain是可以等于0的
+         */
+        if (null != example.remain && example.remain >= 0) {
             c.remain = example.remain;
+        }
+
+        if (null != example.type && example.type > 0) {
+            c.type = example.type;
+        }
+
+        if (null != example.area && example.area > 0) {
+            c.area = example.area;
+        }
+
+        if (null != example.sourceId && example.sourceId > 0) {
+            c.sourceId = example.sourceId;
+        }
+
+        if (StringUtils.isNotEmpty(example.ruleDesc)) {
+            c.ruleDesc = example.ruleDesc;
         }
 
         return DajiaResult.successReturn(null, null, c);
@@ -234,12 +256,33 @@ public class CouponService {
             return DajiaResult.inputError("优惠券过期时间不能早于当前时间", null);
         }
 
-        if (example.value <= 0) {
+        if (example.gmtStart == null) {
+            return DajiaResult.inputError("优惠券必须设置开始时间", null);
+        }
+
+        // TODO 过期时间应该是按天计算
+        if (example.gmtStart.before(new Date())) {
+            return DajiaResult.inputError("优惠券开始时间不能早于当前时间", null);
+        }
+
+        if (null == example.value || example.value <= 0) {
             return DajiaResult.inputError("优惠券金额必须大于0", null);
         }
 
-        if (example.type <= 0) {
+        if (null == example.type || example.type <= 0) {
             return DajiaResult.inputError("非法的优惠券类型", null);
+        }
+
+        if (null == example.area || example.area <= 0) {
+            return DajiaResult.inputError("非法的优惠券可用区域", null);
+        }
+
+        if (null == example.sourceId || example.sourceId <= 0) {
+            return DajiaResult.inputError("非法的优惠券来源商家ID", null);
+        }
+
+        if (StringUtils.isEmpty(example.ruleDesc)) {
+            return DajiaResult.inputError("优惠券的规则不能为空", null);
         }
 
         if (!example.isActive()) {

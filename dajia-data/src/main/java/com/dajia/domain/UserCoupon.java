@@ -1,14 +1,19 @@
 package com.dajia.domain;
 
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.persistence.*;
+import static com.dajia.domain.CouponConstants.*;
+import java.util.Date;
 
 /**
  * 给用户发放的优惠券
  *
  * Created by huhaonan on 2016/10/20.
  */
+
+@Entity
+@Table(name = "user_coupon")
 public class UserCoupon extends BaseModel {
 
     @Column(name = "id")
@@ -29,12 +34,6 @@ public class UserCoupon extends BaseModel {
     public Long couponId;
 
     /**
-     * 过期时间 long类型 冗余字段 用来做快速索引
-     */
-    @Column(name = "gmt_expired")
-    public Long gmtExpired;
-
-    /**
      * 所属订单 如果已经使用
      */
     @Column(name = "order_id")
@@ -43,18 +42,30 @@ public class UserCoupon extends BaseModel {
     /**
      * 状态
      */
-    public int status;
+    public Integer status;
 
     /**
      * 金额 冗余字段
      */
-    public int value;
+    public Integer value;
 
     /**
-     * 券的简要说明 冗余字段
+     * 券的类型
+     *
+     * 1. 代金券 -- 抵扣订单部分价格
+     * 2. 满减券 -- 订单金额达到一定数目才能使用
+     * 3. 打折券 -- 给订单打折使用
      */
-    @Column(name = "info")
-    public String info;
+    @Column(name = "type")
+    public Integer type;
+
+    /**
+     * 可使用范围
+     *
+     * 1.直营 2.店铺 3.通用
+     */
+    @Column(name = "area")
+    public Integer area;
 
     /**
      * 创建人
@@ -69,24 +80,31 @@ public class UserCoupon extends BaseModel {
     public String modifiedBy;
 
     /**
-     * 备注信息
+     * 使用规则的简要说明 显示在券的界面上
+     * 比如 "满199元使用"
      */
-    public String desc;
+    @Column(name = "rule_desc")
+    public String ruleDesc;
 
-    /** 券的各种使用状态 **/
-    // 未使用
-    public final static int STATUS_NOT_USED = 0;
-    // 已经使用
-    public final static int STATUS_USED  = 1;
-    // 系统取消发放
-    public final static int STATUS_CANCELED = 2;
-    // 过期未使用
-    public final static int STATUS_EXPIRED = 3;
-    // 用户端放弃
-    public final static int STATUS_GIVEUP = 4;
+    /**
+     * 这条优惠券的备注信息 后台可见 前台不可见
+     */
+    @Column(name = "comment")
+    public String comment;
+
+    /**
+     * 过期时间 long类型 冗余字段 用来做快速索引
+     */
+    @Column(name = "gmt_expired")
+    public Long gmtExpired;
+
+    @Column(name = "gmt_start")
+    public Long gmtStart;
+
+
 
     public final boolean canUse () {
-        return status == STATUS_NOT_USED;
+        return status == STATUS_ACTIVE;
     }
 
     public final boolean isUsed () {
@@ -109,17 +127,65 @@ public class UserCoupon extends BaseModel {
 
     public UserCoupon(Coupon coupon, Long userId, Long orderId, String createdBy) {
         this.userId = userId;
-        this.orderId = null;
+        this.orderId = orderId;
         this.copy(coupon);
         this.createdBy = createdBy;
         this.modifiedBy = createdBy;
-        this.status = STATUS_NOT_USED;
+        this.status = STATUS_ACTIVE;
     }
 
+    /**
+     * 从券的信息复制到用户券
+     *
+     * @param coupon
+     */
     private void copy(Coupon coupon) {
         this.value = coupon.value;
-        this.gmtExpired = coupon.gmtExpired.getTime();
+
+        // 如果没有设置过期时间 那么设置为过期
+        if (null != this.gmtExpired) {
+            this.gmtExpired = coupon.gmtExpired.getTime();
+        } else {
+            this.status = STATUS_EXPIRED;
+            this.gmtExpired = new Date().getTime();
+        }
+
         this.couponId = coupon.id;
-        this.info = coupon.name;
+
+        if (null != coupon.gmtStart) {
+            this.gmtStart = coupon.gmtStart.getTime();
+        } else {
+            this.gmtStart = new Date().getTime();
+        }
+
+        this.type = coupon.type;
+        this.area = coupon.area;
+        this.ruleDesc = coupon.ruleDesc;
+
+        this.comment = StringUtils.trimToEmpty(coupon.name) + "_" + StringUtils.trimToEmpty(coupon.comment);
+
+        if (this.comment.length() == 1) {
+            this.comment = null;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "UserCoupon{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", couponId=" + couponId +
+                ", orderId=" + orderId +
+                ", status=" + status +
+                ", value=" + value +
+                ", type=" + type +
+                ", area=" + area +
+                ", createdBy='" + createdBy + '\'' +
+                ", modifiedBy='" + modifiedBy + '\'' +
+                ", ruleDesc='" + ruleDesc + '\'' +
+                ", comment='" + comment + '\'' +
+                ", gmtExpired=" + gmtExpired +
+                ", gmtStart=" + gmtStart +
+                '}';
     }
 }

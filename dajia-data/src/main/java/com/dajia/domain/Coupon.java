@@ -6,6 +6,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.util.Date;
 
+import static com.dajia.domain.CouponConstants.STATUS_ACTIVE;
+
 /**
  * 优惠券
  *
@@ -26,34 +28,61 @@ public class Coupon extends BaseModel {
     public String name;
 
     /**
-     * 券的说明
+     * 券的说明 这是内部人员查看的时候显示的简介 不会显示在优惠券界面上
+     *
      */
-    public String desc;
+    public String comment;
 
     /**
      * 面额
      */
-    public int value;
+    public Integer value;
 
     /**
      * 数量
      */
-    public Long amount = -1L;
+    public Long amount;
 
     /**
      * 剩余数量
      */
-    public Long remain = -1L;
+    public Long remain;
 
     /**
-     * 类型
+     * 1. 代金券 -- 抵扣订单部分价格
+     * 2. 满减券 -- 订单金额达到一定数目才能使用
+     * 3. 打折券 -- 给订单打折使用
      */
-    public int type;
+    public Integer type;
+
+    /**
+     * 可使用范围
+     *
+     * 1.直营 2.店铺 3.通用
+     */
+    public Integer area;
+
+    /**
+     * 来源 商家ID 默认是1 即打价网
+     */
+    @Column(name = "sourceId")
+    public Long sourceId = 1L;
 
     /**
      * 状态
+     *
+     * {@See com.dajia.domain.CouponConstants }
      */
-    public int status;
+    @Column(name = "status")
+    public Integer status = STATUS_ACTIVE;
+
+    /**
+     * 规则简述
+     *
+     * 显示在优惠券的界面上 例如"全场通用" "满199元使用"
+     */
+    @Column(name = "rule_desc")
+    public String ruleDesc;
 
     /**
      * 过期时间
@@ -61,41 +90,71 @@ public class Coupon extends BaseModel {
     @Column(name = "gmt_expired")
     public Date gmtExpired;
 
+    /**
+     * 可以使用的最早时间
+     */
+    @Column(name = "gmt_start")
+    public Date gmtStart;
+
+    /**
+     * 创建人
+     */
     @Column(name = "created_by")
     public String createdBy;
 
+    /**
+     * 修改人
+     */
     @Column(name = "modified_by")
     public String modifiedBy;
+
+
+    public Coupon() {}
+
+    /**
+     *
+     * @param name
+     * @param comment
+     * @param value
+     * @param type
+     * @param area
+     * @param ruleDesc
+     * @param gmtStart
+     * @param gmtExpired
+     * @param createdBy
+     */
+    public Coupon(String name, String comment, Integer value, Integer type, Integer area, String ruleDesc, Date gmtStart, Date gmtExpired, String createdBy) {
+        this.name = name;
+        this.comment = comment;
+        this.value = value;
+        this.type = type;
+        this.area = area;
+        this.ruleDesc = ruleDesc;
+        this.gmtStart = gmtStart;
+        this.gmtExpired = gmtExpired;
+        this.createdBy = createdBy;
+        this.modifiedBy = createdBy;
+    }
 
     @Override
     public String toString() {
         return "Coupon{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", desc='" + desc + '\'' +
+                ", comment='" + comment + '\'' +
                 ", value=" + value +
                 ", amount=" + amount +
                 ", remain=" + remain +
                 ", type=" + type +
+                ", area=" + area +
+                ", sourceId=" + sourceId +
                 ", status=" + status +
                 ", gmtExpired=" + gmtExpired +
-                ", createdDate=" + createdDate +
-                ", modifiedDate=" + modifiedDate +
+                ", gmtStart=" + gmtStart +
                 ", createdBy='" + createdBy + '\'' +
                 ", modifiedBy='" + modifiedBy + '\'' +
                 '}';
     }
-
-    /**
-     * 券的状态定义
-     */
-    // 正常状态
-    public final static int STATUS_ACTIVE  = 5;
-    // 券已经过期
-    public final static int STATUS_EXPIRED = 4;
-    // 券已经作废
-    public final static int STATUS_CANCELED  = 3;
-
 
     /**
      * 券的状态是否正常
@@ -103,8 +162,7 @@ public class Coupon extends BaseModel {
      * @return
      */
     public final boolean isActive () {
-        return status >= STATUS_ACTIVE;
+        return status == STATUS_ACTIVE;
     }
-
 
 }

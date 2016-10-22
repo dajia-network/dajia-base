@@ -1,6 +1,7 @@
 package com.dajia.service;
 
 import com.dajia.domain.Coupon;
+import com.dajia.domain.CouponConstants;
 import com.dajia.domain.UserCoupon;
 import com.dajia.repository.CouponRepo;
 import com.dajia.repository.UserCouponRepo;
@@ -47,17 +48,18 @@ public class UserCouponService {
      */
     public DajiaResult publishCoupons (Long couponId, List<Long> users, String createdBy) {
         if (null == couponId || couponId <= 0) {
-            return DajiaResult.inputError("优惠券ID不存在", null);
+            return DajiaResult.inputError("优惠券发放失败,优惠券ID不存在", null);
         }
 
         Coupon c;
         try {
             c = couponRepo.findOne(couponId);
-            if (null == c) {
-                return DajiaResult.notFound("优惠券ID不存在", null);
-            }
         } catch (Exception ex) {
-            return DajiaResult.systemError("系统异常", null, ex);
+            return DajiaResult.systemError("优惠券发放失败,系统异常", null, ex);
+        }
+
+        if (null == c) {
+            return DajiaResult.notFound("优惠券发放失败,优惠券ID不存在", null);
         }
 
         int succeed = 0;
@@ -100,7 +102,7 @@ public class UserCouponService {
      * @return
      */
     public DajiaResult consumeUserCoupons (Long userId, Long orderId, List<Long> couponIds) {
-        
+
         if (!userRepo.exists(userId)) {
             return DajiaResult.inputError("消费优惠券失败,用户不存在", null);
         }
@@ -111,7 +113,7 @@ public class UserCouponService {
 
         // 只能消费"未使用"状态的优惠券
         try {
-            int consumed = userCouponRepo.batchUpdateStatusAndOrderId(userId, orderId, couponIds, UserCoupon.STATUS_USED, UserCoupon.STATUS_NOT_USED);
+            int consumed = userCouponRepo.batchUpdateStatusAndOrderId(userId, orderId, couponIds, CouponConstants.STATUS_USED, CouponConstants.STATUS_ACTIVE);
             if (consumed != couponIds.size()) {
                 return DajiaResult.systemError("未能成功使用全部选中的优惠券", null, null);
             }
@@ -134,7 +136,7 @@ public class UserCouponService {
         }
 
         try {
-            Page<UserCoupon> coupons = userCouponRepo.findByUserId(userId, pageable);
+            Page<UserCoupon> coupons = userCouponRepo.findByUserIdOrderByStatusAscGmtExpiredDesc(userId, pageable);
             return DajiaResult.successReturn(COMMON_MSG_QUERY_OK, null, coupons);
         } catch (Exception ex) {
             return DajiaResult.systemError("获取优惠券列表失败,系统异常", null, ex);
