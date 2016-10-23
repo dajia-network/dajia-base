@@ -170,6 +170,10 @@ public class DajiaResult implements Serializable {
         return succeed;
     }
 
+    public final boolean isNotSucceed () {
+        return false == succeed;
+    }
+
     @Override
     public String toString() {
         return "DajiaResult{" +
