@@ -62,13 +62,12 @@ public interface UserCouponRepo extends CrudRepository<UserCoupon, Long> {
     UserCoupon findByUserIdAndCouponId(Long userId, Long couponId);
 
     /**
-     * TODO 是否需要status ?
      *
      * @param userId
      * @param idList
      * @return
      */
-    List<UserCoupon> findByUserIdAndIdIn(Long userId, List<Long> idList);
+    List<UserCoupon> findByUserIdAndIdInAndStatus(Long userId, List<Long> idList, int status);
 
 
     @Modifying

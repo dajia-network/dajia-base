@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -165,31 +166,42 @@ public class UserCouponService {
      * 计算用这些优惠券一共能减去多少钱
      * TODO 复杂规则
      *
-     * @param couponIds
+     * @param couponPkList
      * @param userId
      * @return
      */
-    public DajiaResult getTotalCutOffWithCoupons(List<Long> couponIds, Long userId) {
+    @Transactional(readOnly = true)
+    public DajiaResult getTotalCutOffWithCoupons(List<Long> couponPkList, Long userId) {
 
         List<UserCoupon> userCoupons;
 
-        if(null == couponIds || couponIds.isEmpty()) {
-            return DajiaResult.successReturn("未选择优惠券", null, BigDecimal.ZERO);
+        if(null == couponPkList || couponPkList.isEmpty()) {
+            return DajiaResult.successReturn("未选择优惠券,没有优惠", null, BigDecimal.ZERO);
         }
 
+        /**
+         * 三种异常
+         *
+         * 1. 伪造优惠券ID
+         * 2. 使用别人的优惠券ID
+         * 3. 优惠券状态不正常
+         */
         try {
-            userCoupons = userCouponRepo.findByUserIdAndIdIn(userId, couponIds);
+            userCoupons = userCouponRepo.findByUserIdAndIdInAndStatus(userId, couponPkList, CouponConstants.STATUS_ACTIVE);
         } catch (Exception ex) {
-            return DajiaResult.systemError("消费优惠券失败, 系统异常", null, ex);
+            return DajiaResult.systemError("使用优惠券失败,系统异常", null, ex);
         }
 
-        if (null == userCoupons || userCoupons.size() < couponIds.size()) {
+        if (null == userCoupons || userCoupons.size() < couponPkList.size()) {
             return DajiaResult.inputError("存在不能使用的优惠券", null);
         }
 
         BigDecimal totalCutOff = BigDecimal.ZERO;
 
         for(UserCoupon userCoupon : userCoupons) {
+           if (null == userCoupon.value || userCoupon.value <= 0) {
+                return DajiaResult.inputError("存在金额错误的优惠券", null);
+           }
            totalCutOff = totalCutOff.add(new BigDecimal(userCoupon.value));
         }
 
