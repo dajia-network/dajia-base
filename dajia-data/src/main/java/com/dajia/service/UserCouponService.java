@@ -115,7 +115,7 @@ public class UserCouponService {
 
         // 只能消费"未使用"状态的优惠券
         try {
-            int consumed = userCouponRepo.batchUpdateStatusAndOrderId(userId, orderId, couponIds, CouponConstants.STATUS_USED, CouponConstants.STATUS_ACTIVE);
+            int consumed = userCouponRepo.updateStatusByPK(couponIds, userId, orderId, CouponConstants.STATUS_USED);
             if (consumed != couponIds.size()) {
                 return DajiaResult.systemError("未能成功使用全部选中的优惠券", null, null);
             }
