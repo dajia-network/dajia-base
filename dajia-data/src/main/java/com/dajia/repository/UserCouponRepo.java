@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -72,15 +73,15 @@ public interface UserCouponRepo extends CrudRepository<UserCoupon, Long> {
 
     @Modifying
     @Query("update UserCoupon uc set uc.status = :targetStatus where uc.couponId = :couponId and uc.status = :originStatus")
-    int batchUpdateStatusByCouponId(Long couponId, int targetStatus, int originStatus);
+    int batchUpdateStatusByCouponId(@Param("couponId") Long couponId, @Param("targetStatus") int targetStatus, @Param("originStatus") int originStatus);
 
     @Modifying
-    @Query("update UserCoupon uc set uc.status = :targetStatus, uc.orderId = :orderId where uc.userId = userId and uc.couponId in :couponIds and uc.status = :lastStatus")
-    int batchUpdateStatusAndOrderId(Long userId, Long orderId, List<Long> couponIds, int targetStatus, int lastStatus);
+    @Query("update UserCoupon uc set uc.status = :targetStatus, uc.orderId = :orderId where uc.userId = :userId and uc.couponId in :couponIds and uc.status = :lastStatus")
+    int batchUpdateStatusAndOrderId(@Param("userId") Long userId, @Param("orderId") Long orderId, @Param("couponIds") List<Long> couponIds, @Param("targetStatus") int targetStatus, @Param("lastStatus") int lastStatus);
 
 
     @Modifying
     @Query("update UserCoupon uc set uc.status = :targetStatus, uc.orderId = :orderId where uc.id in :pkList and uc.userId = :userId")
-    int updateStatusByPK(List<Long> pkList, Long userId, Long orderId, int targetStatus);
+    int updateStatusByPK(@Param("pkList") List<Long> pkList, @Param("userId") Long userId, @Param("orderId") Long orderId, @Param("targetStatus") int targetStatus);
 
 }

@@ -190,7 +190,7 @@ public class UserCouponService {
         BigDecimal totalCutOff = BigDecimal.ZERO;
 
         for(UserCoupon userCoupon : userCoupons) {
-            totalCutOff.add(new BigDecimal(userCoupon.value));
+           totalCutOff = totalCutOff.add(new BigDecimal(userCoupon.value));
         }
 
         return DajiaResult.successReturn(COMMON_MSG_QUERY_OK, null, totalCutOff);
