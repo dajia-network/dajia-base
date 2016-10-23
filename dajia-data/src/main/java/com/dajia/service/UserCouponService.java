@@ -178,7 +178,7 @@ public class UserCouponService {
         }
 
         try {
-            userCoupons = userCouponRepo.findByUserIdAndCouponIdIn(userId, couponIds);
+            userCoupons = userCouponRepo.findByUserIdAndIdIn(userId, couponIds);
         } catch (Exception ex) {
             return DajiaResult.systemError("消费优惠券失败, 系统异常", null, ex);
         }

@@ -64,10 +64,10 @@ public interface UserCouponRepo extends CrudRepository<UserCoupon, Long> {
      * TODO 是否需要status ?
      *
      * @param userId
-     * @param couponIdList
+     * @param idList
      * @return
      */
-    List<UserCoupon> findByUserIdAndCouponIdIn(Long userId, List<Long> couponIdList);
+    List<UserCoupon> findByUserIdAndIdIn(Long userId, List<Long> idList);
 
 
     @Modifying
