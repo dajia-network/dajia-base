@@ -60,6 +60,15 @@ public interface UserCouponRepo extends CrudRepository<UserCoupon, Long> {
      */
     UserCoupon findByUserIdAndCouponId(Long userId, Long couponId);
 
+    /**
+     * TODO 是否需要status ?
+     *
+     * @param userId
+     * @param couponIdList
+     * @return
+     */
+    List<UserCoupon> findByUserIdAndCouponIdIn(Long userId, List<Long> couponIdList);
+
 
     @Modifying
     @Query("update UserCoupon uc set uc.status = :targetStatus where uc.couponId = :couponId and uc.status = :originStatus")

@@ -5,10 +5,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
-import com.dajia.domain.UserContact;
-import com.dajia.domain.UserOrderItem;
-import com.dajia.domain.UserRefund;
-import com.dajia.domain.UserShare;
+import com.dajia.domain.*;
 
 public class OrderVO {
 
@@ -95,4 +92,6 @@ public class OrderVO {
 	public List<UserOrderItem> orderItems;
 
 	public List<UserShare> userShares;
+
+	public List<Long> appliedCoupons;
 }

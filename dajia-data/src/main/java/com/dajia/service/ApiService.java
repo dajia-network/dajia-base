@@ -225,7 +225,7 @@ public class ApiService {
 		Pingpp.apiKey = ApiPingppUtils.pingpp_live_key;
 		Map<String, Object> chargeParams = new HashMap<String, Object>();
 		chargeParams.put("order_no", order.trackingId);
-		Integer amt = order.totalPrice.multiply(new BigDecimal(100)).intValue();
+		Integer amt = order.actualPay.multiply(new BigDecimal(100)).intValue();
 		chargeParams.put("amount", amt);// hard code as 1 during testing phase
 		Map<String, String> app = new HashMap<String, String>();
 		app.put("id", "app_DifDeLWjfrz9Wf9y");

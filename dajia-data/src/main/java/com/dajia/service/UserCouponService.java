@@ -7,6 +7,7 @@ import com.dajia.repository.CouponRepo;
 import com.dajia.repository.UserCouponRepo;
 import com.dajia.repository.UserRepo;
 import com.dajia.util.DajiaResult;
+import com.dajia.vo.OrderVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static com.dajia.util.ResultConstants.*;
@@ -157,6 +159,41 @@ public class UserCouponService {
             return DajiaResult.notFound("获取优惠券列表失败,用户不存在", null);
         }
         return DajiaResult.successReturn(COMMON_MSG_QUERY_OK, null, null);
+    }
+
+    /**
+     * 计算用这些优惠券一共能减去多少钱
+     * TODO 复杂规则
+     *
+     * @param couponIds
+     * @param userId
+     * @return
+     */
+    public DajiaResult getTotalCutOffWithCoupons(List<Long> couponIds, Long userId) {
+
+        List<UserCoupon> userCoupons;
+
+        if(null == couponIds || couponIds.isEmpty()) {
+            return DajiaResult.successReturn("未选择优惠券", null, BigDecimal.ZERO);
+        }
+
+        try {
+            userCoupons = userCouponRepo.findByUserIdAndCouponIdIn(userId, couponIds);
+        } catch (Exception ex) {
+            return DajiaResult.systemError("消费优惠券失败, 系统异常", null, ex);
+        }
+
+        if (null == userCoupons || userCoupons.size() < couponIds.size()) {
+            return DajiaResult.inputError("存在不能使用的优惠券", null);
+        }
+
+        BigDecimal totalCutOff = BigDecimal.ZERO;
+
+        for(UserCoupon userCoupon : userCoupons) {
+            totalCutOff.add(new BigDecimal(userCoupon.value));
+        }
+
+        return DajiaResult.successReturn(COMMON_MSG_QUERY_OK, null, totalCutOff);
     }
 
 }
