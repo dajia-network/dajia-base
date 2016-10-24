@@ -75,12 +75,7 @@ public interface UserCouponRepo extends CrudRepository<UserCoupon, Long> {
     int batchUpdateStatusByCouponId(@Param("couponId") Long couponId, @Param("targetStatus") int targetStatus, @Param("originStatus") int originStatus);
 
     @Modifying
-    @Query("update UserCoupon uc set uc.status = :targetStatus, uc.orderId = :orderId where uc.userId = :userId and uc.couponId in :couponIds and uc.status = :lastStatus")
-    int batchUpdateStatusAndOrderId(@Param("userId") Long userId, @Param("orderId") Long orderId, @Param("couponIds") List<Long> couponIds, @Param("targetStatus") int targetStatus, @Param("lastStatus") int lastStatus);
-
-
-    @Modifying
-    @Query("update UserCoupon uc set uc.status = :targetStatus, uc.orderId = :orderId where uc.id in :pkList and uc.userId = :userId")
-    int updateStatusByPK(@Param("pkList") List<Long> pkList, @Param("userId") Long userId, @Param("orderId") Long orderId, @Param("targetStatus") int targetStatus);
+    @Query("update UserCoupon uc set uc.status = :targetStatus, uc.orderId = :orderId where uc.id in :pkList and uc.userId = :userId and uc.status = :lastStatus")
+    int updateStatusByPK(@Param("pkList") List<Long> pkList, @Param("userId") Long userId, @Param("orderId") Long orderId, @Param("targetStatus") int targetStatus, @Param("lastStatus") int lastStatus);
 
 }

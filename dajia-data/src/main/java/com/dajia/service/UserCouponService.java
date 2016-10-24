@@ -7,7 +7,6 @@ import com.dajia.repository.CouponRepo;
 import com.dajia.repository.UserCouponRepo;
 import com.dajia.repository.UserRepo;
 import com.dajia.util.DajiaResult;
-import com.dajia.vo.OrderVO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static com.dajia.domain.CouponConstants.*;
 import static com.dajia.util.ResultConstants.*;
 
 /**
@@ -101,24 +101,20 @@ public class UserCouponService {
      * 调用这个函数的函数必须包含在一个事务中
      *
      * @param userId
-     * @param couponIds
+     * @param couponPkList
      * @return
      */
-    public DajiaResult consumeUserCoupons (Long userId, Long orderId, List<Long> couponIds) {
-
+    @Transactional
+    public DajiaResult consumeUserCoupons (Long userId, Long orderId, List<Long> couponPkList) {
         if (!userRepo.exists(userId)) {
             return DajiaResult.inputError("消费优惠券失败,用户不存在", null);
         }
-
-        // TODO 是否需要校验couponId是否存在
-        // TODO 如果传入了不存在的couponId 将导致coupon更新数量不正确
-        // TODO 可能导致优惠券使用失败
-
         // 只能消费"未使用"状态的优惠券
         try {
-            int consumed = userCouponRepo.updateStatusByPK(couponIds, userId, orderId, CouponConstants.STATUS_USED);
-            if (consumed != couponIds.size()) {
-                return DajiaResult.systemError("未能成功使用全部选中的优惠券", null, null);
+            int consumed = userCouponRepo.updateStatusByPK(couponPkList, userId, orderId, STATUS_USED, STATUS_ACTIVE);
+            if (consumed != couponPkList.size()) {
+                String msg = String.format("消费优惠券失败,优惠券信息不正确[%d/%d]", consumed, couponPkList.size());
+                return DajiaResult.inputError(msg, null);
             }
             return DajiaResult.success();
         } catch (Exception ex) {
