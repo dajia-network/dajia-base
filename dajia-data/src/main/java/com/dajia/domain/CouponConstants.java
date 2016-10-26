@@ -1,5 +1,9 @@
 package com.dajia.domain;
 
+import com.dajia.util.SimpleMap;
+
+import java.util.HashMap;
+
 /**
  * Created by huhaonan on 2016/10/23.
  */
@@ -18,6 +22,7 @@ public interface CouponConstants {
 
     int TYPE_CUT_OFF = 3;
 
+    HashMap LABEL_TYPE = SimpleMap.build(TYPE_MONEY, "代金券", TYPE_FULL_RETURN, "满减券", TYPE_CUT_OFF, "折扣券");
 
     /**
      * 券的各种使用状态
@@ -40,6 +45,13 @@ public interface CouponConstants {
     // 用户端放弃
     int STATUS_GIVEUP = 5;
 
+    HashMap LABEL_STATUS = SimpleMap.build(STATUS_ACTIVE, "可使用",
+            STATUS_INACTIVE, "不可使用",
+            STATUS_USED, "已使用",
+            STATUS_CANCELED, "系统取消",
+            STATUS_EXPIRED, "已过期",
+            STATUS_GIVEUP, "已放弃");
+
 
     /**
      * 券的使用范围
@@ -54,4 +66,5 @@ public interface CouponConstants {
 
     int AREA_ALL  = 3;
 
+    HashMap LABEL_AREA = SimpleMap.build(AREA_SELF, "直营", AREA_SHOP, "店铺", AREA_ALL, "通用");
 }

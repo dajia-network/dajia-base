@@ -1,12 +1,11 @@
 package com.dajia.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.persistence.*;
 import java.util.Date;
 
-import static com.dajia.domain.CouponConstants.STATUS_ACTIVE;
+import static com.dajia.domain.CouponConstants.*;
 
 /**
  * 优惠券
@@ -109,6 +108,10 @@ public class Coupon extends BaseModel {
     public String modifiedBy;
 
 
+    @Transient
+    public String displayInfo;
+
+
     public Coupon() {}
 
     /**
@@ -134,6 +137,9 @@ public class Coupon extends BaseModel {
         this.gmtExpired = gmtExpired;
         this.createdBy = createdBy;
         this.modifiedBy = createdBy;
+        this.displayInfo = String.format("%d元%s%s", value,
+                StringUtils.trimToEmpty((String) LABEL_AREA.get(area)),
+                StringUtils.trimToEmpty((String) LABEL_TYPE.get(type)));
     }
 
     @Override

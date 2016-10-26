@@ -101,6 +101,12 @@ public class UserCoupon extends BaseModel {
     @Column(name = "gmt_start")
     public Long gmtStart;
 
+    /**
+     * 显示在前端的优惠券信息
+     */
+    @Transient
+    public String displayInfo;
+
 
 
     public final boolean canUse () {
@@ -167,6 +173,8 @@ public class UserCoupon extends BaseModel {
         if (this.comment.length() == 1) {
             this.comment = null;
         }
+
+        this.displayInfo = coupon.displayInfo;
     }
 
     @Override

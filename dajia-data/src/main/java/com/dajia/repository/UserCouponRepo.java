@@ -70,6 +70,15 @@ public interface UserCouponRepo extends CrudRepository<UserCoupon, Long> {
     List<UserCoupon> findByUserIdAndIdInAndStatus(Long userId, List<Long> idList, int status);
 
 
+    /**
+     * 查找用户手上可用的优惠券
+     */
+    List<UserCoupon> findByUserIdAndStatusInAndOrderIdIsNullAndGmtExpiredAfterAndGmtStartBefore(Long userId, List<Integer> statusList, Long expiredAfter, Long startBefore);
+
+
+    List<UserCoupon> findByUserIdAndStatusIn(Long userId, List<Integer> statusList);
+
+
     @Modifying
     @Query("update UserCoupon uc set uc.status = :targetStatus where uc.couponId = :couponId and uc.status = :originStatus")
     int batchUpdateStatusByCouponId(@Param("couponId") Long couponId, @Param("targetStatus") int targetStatus, @Param("originStatus") int originStatus);
@@ -77,5 +86,9 @@ public interface UserCouponRepo extends CrudRepository<UserCoupon, Long> {
     @Modifying
     @Query("update UserCoupon uc set uc.status = :targetStatus, uc.orderId = :orderId where uc.id in :pkList and uc.userId = :userId and uc.status = :lastStatus")
     int updateStatusByPK(@Param("pkList") List<Long> pkList, @Param("userId") Long userId, @Param("orderId") Long orderId, @Param("targetStatus") int targetStatus, @Param("lastStatus") int lastStatus);
+
+
+    @Query("select count(1) from UserCoupon where userId = :userId and couponId = :couponId and status in :statusList")
+    Integer countByUserIdAndCouponIdAndStatusIn(@Param("userId") Long userId, @Param("couponId") Long couponId, @Param("statusList") List<Integer> statusList);
 
 }

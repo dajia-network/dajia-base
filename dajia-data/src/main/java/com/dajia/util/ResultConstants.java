@@ -36,6 +36,7 @@ public interface ResultConstants {
     // 未知
     int TYPE_UNKNOWN = 5;
 
+
     /**
      * 一些通用的返回信息
      *

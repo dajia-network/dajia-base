@@ -166,6 +166,14 @@ public class DajiaResult implements Serializable {
         return DajiaResult.fail().setFailFlags(TYPE_INPUT, LEVEL_SYSTEM_REPORT).setMessages(userMsg, userMsgKey, null);
     }
 
+    public static DajiaResult notAuth(String userMsg, String userMsgKey, boolean forceLogout) {
+        return DajiaResult.fail().setFailFlags(TYPE_RESTRICTED, LEVEL_SYSTEM_REPORT).setMessages(userMsg, userMsgKey, null).setData(forceLogout);
+    }
+
+    public static DajiaResult operationFail(String userMsg, String userMsgKey) {
+        return DajiaResult.fail().setFailFlags(TYPE_UNKNOWN, LEVEL_SYSTEM_REPORT).setMessages(userMsg, userMsgKey, null);
+    }
+
     public final boolean isSucceed () {
         return succeed;
     }
