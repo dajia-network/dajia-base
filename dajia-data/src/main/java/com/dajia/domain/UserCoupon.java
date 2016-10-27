@@ -108,7 +108,6 @@ public class UserCoupon extends BaseModel {
     public String displayInfo;
 
 
-
     public final boolean canUse () {
         return status == STATUS_ACTIVE;
     }
@@ -128,7 +127,6 @@ public class UserCoupon extends BaseModel {
 
 
     public UserCoupon() {
-
     }
 
     public UserCoupon(Coupon coupon, Long userId, Long orderId, String createdBy) {
@@ -173,8 +171,13 @@ public class UserCoupon extends BaseModel {
         if (this.comment.length() == 1) {
             this.comment = null;
         }
+    }
 
-        this.displayInfo = coupon.displayInfo;
+    @PostLoad
+    public void setDisplayInfo() {
+        this.displayInfo = String.format("%d元%s%s", value,
+                StringUtils.trimToEmpty((String) LABEL_AREA.get(area)),
+                StringUtils.trimToEmpty((String) LABEL_TYPE.get(type)));
     }
 
     @Override
