@@ -3,6 +3,7 @@ package com.dajia.util;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.persistence.Transient;
 import java.io.Serializable;
 import java.util.UUID;
 
@@ -78,8 +79,11 @@ public class DajiaResult implements Serializable {
      */
     public int level = LEVEL_LOG_ONLY;
 
-
-
+    /**
+     * 异常信息 供上层方法使用 比如回滚事务
+     */
+    @Transient
+    public Exception ex ;
 
     /** ///////////////////////////////////////////////////////////////////////
      * 构造函数
@@ -145,13 +149,18 @@ public class DajiaResult implements Serializable {
         return this;
     }
 
+    public DajiaResult setException (Exception ex) {
+        this.ex = ex;
+        return this;
+    }
+
     /** ///////////////////////////////////////////////////////////////////////
      * 便捷构造函数
      /////////////////////////////////////////////////////////////////////// **/
 
     public static DajiaResult systemError(String userMsg, String userMsgKey, Exception ex) {
         String errorMsg = ex == null ?  "" : ex.getMessage();
-        return DajiaResult.fail().setFailFlags(TYPE_SYSTEM, LEVEL_SYSTEM_REPORT).setMessages(userMsg, userMsgKey, errorMsg);
+        return DajiaResult.fail().setFailFlags(TYPE_SYSTEM, LEVEL_SYSTEM_REPORT).setMessages(userMsg, userMsgKey, errorMsg).setException(ex);
     }
 
     public static DajiaResult successReturn(String userMsg, String userMsgKey, Object data) {
@@ -197,6 +206,22 @@ public class DajiaResult implements Serializable {
                 ", code=" + code +
                 ", level=" + level +
                 '}';
+    }
+
+    /**
+     * 转换成一个对外输出的序列化对象
+     * @return
+     */
+    public final WebResult toWebResult() {
+        WebResult r = new WebResult();
+        r.data = this.data;
+        r.message = this.userMsg;
+        r.code = this.code;
+        r.timestamp = this.timestamp;
+        r.id = this.uuid;
+        r.request = this.requestId;
+        r.succeed = this.succeed;
+        return r;
     }
 
     public static void main(String[] args) {
