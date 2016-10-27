@@ -12,9 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -259,9 +257,16 @@ public class UserCouponService {
         Long todayMorning = DateUtil.todayMorning();
         Long tomorrowMorning = DateUtil.tomorrowMorning();
 
-        /** 此处暂时返回用户所有的优惠券 */
+        /**
+         * 规则:
+         * 1. UserId匹配
+         * 2. 订单ID为空
+         * 3. status为可使用
+         * 4. 限制使用开始时间 <= today morning
+         * 5. 限制使用过期时间 >= tomorrow morning
+         */
         try {
-            List<UserCoupon> availableCoupons =  userCouponRepo.findByUserIdAndStatusInAndOrderIdIsNullAndGmtExpiredAfterAndGmtStartBefore(userId, Arrays.asList(STATUS_ACTIVE), tomorrowMorning, todayMorning);
+            List<UserCoupon> availableCoupons =  userCouponRepo.findByUserIdAndStatusInAndOrderIdIsNullAndGmtExpiredGreaterThanEqualAndGmtStartLessThanEqual(userId, Arrays.asList(STATUS_ACTIVE), tomorrowMorning, todayMorning);
             return DajiaResult.successReturn(COMMON_MSG_QUERY_OK, null, availableCoupons);
         } catch (Exception ex) {
             return DajiaResult.systemError("系统异常", null, ex);

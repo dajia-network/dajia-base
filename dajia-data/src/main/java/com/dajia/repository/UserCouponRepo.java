@@ -73,7 +73,7 @@ public interface UserCouponRepo extends CrudRepository<UserCoupon, Long> {
     /**
      * 查找用户手上可用的优惠券
      */
-    List<UserCoupon> findByUserIdAndStatusInAndOrderIdIsNullAndGmtExpiredAfterAndGmtStartBefore(Long userId, List<Integer> statusList, Long expiredAfter, Long startBefore);
+    List<UserCoupon> findByUserIdAndStatusInAndOrderIdIsNullAndGmtExpiredGreaterThanEqualAndGmtStartLessThanEqual(Long userId, List<Integer> statusList, Long expiredAfter, Long startBefore);
 
 
     List<UserCoupon> findByUserIdAndStatusIn(Long userId, List<Integer> statusList);
