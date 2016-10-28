@@ -323,4 +323,17 @@ public class UserCouponService {
         return DajiaResult.successReturn(COMMON_MSG_QUERY_OK, null, new BigDecimal(total));
     }
 
+    /**
+     *
+     * @param couponIds
+     * @return
+     */
+    public DajiaResult findByCouponIds(List<Long> couponIds) {
+        try {
+            return DajiaResult.successReturn(COMMON_MSG_QUERY_OK, null, userCouponRepo.findByCouponIdIn(couponIds));
+        } catch (Exception ex) {
+            return DajiaResult.systemError("查询优惠券信息失败,系统异常", null, ex);
+        }
+    }
+
 }
