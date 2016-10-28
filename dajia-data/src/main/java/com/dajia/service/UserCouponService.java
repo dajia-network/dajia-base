@@ -254,7 +254,7 @@ public class UserCouponService {
             return canFindUser;
         }
 
-        Long todayMorning = DateUtil.todayMorning();
+        Long now = System.currentTimeMillis();
         Long tomorrowMorning = DateUtil.tomorrowMorning();
 
         /**
@@ -262,11 +262,11 @@ public class UserCouponService {
          * 1. UserId匹配
          * 2. 订单ID为空
          * 3. status为可使用
-         * 4. 限制使用开始时间 <= today morning
+         * 4. 限制使用开始时间 <= now
          * 5. 限制使用过期时间 >= tomorrow morning
          */
         try {
-            List<UserCoupon> availableCoupons =  userCouponRepo.findByUserIdAndStatusInAndOrderIdIsNullAndGmtExpiredGreaterThanEqualAndGmtStartLessThanEqual(userId, Arrays.asList(STATUS_ACTIVE), tomorrowMorning, todayMorning);
+            List<UserCoupon> availableCoupons =  userCouponRepo.findByUserIdAndStatusInAndOrderIdIsNullAndGmtExpiredGreaterThanEqualAndGmtStartLessThanEqual(userId, Arrays.asList(STATUS_ACTIVE), tomorrowMorning, now);
             return DajiaResult.successReturn(COMMON_MSG_QUERY_OK, null, availableCoupons);
         } catch (Exception ex) {
             return DajiaResult.systemError("系统异常", null, ex);

@@ -4,6 +4,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.persistence.*;
 import static com.dajia.domain.CouponConstants.*;
+
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -98,6 +100,9 @@ public class UserCoupon extends BaseModel {
     @Column(name = "gmt_expired")
     public Long gmtExpired;
 
+    /**
+     * 开始时间
+     */
     @Column(name = "gmt_start")
     public Long gmtStart;
 
@@ -145,31 +150,45 @@ public class UserCoupon extends BaseModel {
      */
     private void copy(Coupon coupon) {
         this.value = coupon.value;
-
-        // 如果没有设置过期时间 那么设置为过期
-        if (null != this.gmtExpired) {
-            this.gmtExpired = coupon.gmtExpired.getTime();
-        } else {
-            this.status = STATUS_EXPIRED;
-            this.gmtExpired = new Date().getTime();
-        }
-
         this.couponId = coupon.id;
-
-        if (null != coupon.gmtStart) {
-            this.gmtStart = coupon.gmtStart.getTime();
-        } else {
-            this.gmtStart = new Date().getTime();
-        }
 
         this.type = coupon.type;
         this.area = coupon.area;
         this.ruleDesc = coupon.ruleDesc;
 
+        this.setStartAndExpireTime(coupon);
+
         this.comment = StringUtils.trimToEmpty(coupon.name) + "_" + StringUtils.trimToEmpty(coupon.comment);
 
         if (this.comment.length() == 1) {
             this.comment = null;
+        }
+    }
+
+    /**
+     * 计算用户手上优惠券的有效时间
+     *
+     * 由于UserCoupon的构造函数是在领券(发券)的时候调用
+     * 所以有效时间设置规则如下
+     *
+     *  1. 如果coupon的gmtStart和gmtExpired不是Null 那么直接拷贝过来
+     *  2. 否则把开始时间设置为现在, 过期时间按照expiredDays来计算
+     *
+     * @param coupon
+     */
+    private void setStartAndExpireTime(Coupon coupon) {
+        if (null != coupon.gmtStart && null != coupon.gmtExpired) {
+            this.gmtStart = coupon.gmtStart.getTime();
+            this.gmtExpired = coupon.gmtExpired.getTime();
+        } else {
+            this.gmtStart = System.currentTimeMillis();
+            // 过期时间为 当前时间 + N天的23:59:59
+            Calendar c = Calendar.getInstance();
+            c.add(Calendar.DAY_OF_MONTH, coupon.expiredDays);
+            c.set(Calendar.HOUR, 23);
+            c.set(Calendar.MINUTE, 59);
+            c.set(Calendar.SECOND, 59);
+            this.gmtExpired = c.getTimeInMillis();
         }
     }
 

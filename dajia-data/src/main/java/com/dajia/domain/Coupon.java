@@ -110,9 +110,17 @@ public class Coupon extends BaseModel {
     @Transient
     public String displayInfo;
 
+    /**
+     * 有效期N天
+     * 优先级低于 gmtStart 和 gmtExpired
+     */
+    @Column(name = "expired_days")
+    public Integer expiredDays;
+
     public Coupon() {}
 
     /**
+     * 使用GmtStart和GmtExpired来生成优惠券
      *
      * @param name
      * @param comment
@@ -137,6 +145,31 @@ public class Coupon extends BaseModel {
         this.modifiedBy = createdBy;
     }
 
+
+    /**
+     * 使用ExpiredDays来生成优惠券
+     *
+     * @param name
+     * @param comment
+     * @param value
+     * @param type
+     * @param area
+     * @param ruleDesc
+     * @param expiredDays
+     * @param createdBy
+     */
+    public Coupon(String name, String comment, Integer value, Integer type, Integer area, String ruleDesc, Integer expiredDays, String createdBy) {
+        this.name = name;
+        this.comment = comment;
+        this.value = value;
+        this.type = type;
+        this.area = area;
+        this.ruleDesc = ruleDesc;
+        this.expiredDays = expiredDays;
+        this.createdBy = createdBy;
+        this.modifiedBy = createdBy;
+    }
+
     @PostLoad
     public void setDisplayInfo() {
         this.displayInfo = String.format("%d元%s%s", value,
@@ -157,10 +190,13 @@ public class Coupon extends BaseModel {
                 ", area=" + area +
                 ", sourceId=" + sourceId +
                 ", status=" + status +
+                ", ruleDesc='" + ruleDesc + '\'' +
                 ", gmtExpired=" + gmtExpired +
                 ", gmtStart=" + gmtStart +
                 ", createdBy='" + createdBy + '\'' +
                 ", modifiedBy='" + modifiedBy + '\'' +
+                ", displayInfo='" + displayInfo + '\'' +
+                ", expiredDays=" + expiredDays +
                 '}';
     }
 
