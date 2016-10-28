@@ -323,16 +323,17 @@ public class UserCouponService {
         return DajiaResult.successReturn(COMMON_MSG_QUERY_OK, null, new BigDecimal(total));
     }
 
-    /**
-     *
-     * @param couponIds
-     * @return
-     */
-    public DajiaResult findByCouponIds(List<Long> couponIds) {
+
+    public DajiaResult findCouponsByOrderId(Long orderId, Long userId) {
+        DajiaResult canFindUser = userService.canFoundUser(userId);
+        if(canFindUser.isNotSucceed()) {
+            return canFindUser;
+        }
         try {
-            return DajiaResult.successReturn(COMMON_MSG_QUERY_OK, null, userCouponRepo.findByCouponIdIn(couponIds));
+            List<UserCoupon> userCoupons = userCouponRepo.findByOrderIdAndUserId(orderId, userId);
+            return DajiaResult.successReturn(COMMON_MSG_QUERY_OK, null, userCoupons);
         } catch (Exception ex) {
-            return DajiaResult.systemError("查询优惠券信息失败,系统异常", null, ex);
+            return DajiaResult.systemError(COMMON_MSG_QUERY_FAILED, null, ex);
         }
     }
 

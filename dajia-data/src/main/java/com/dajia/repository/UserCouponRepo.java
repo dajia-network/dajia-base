@@ -41,12 +41,9 @@ public interface UserCouponRepo extends CrudRepository<UserCoupon, Long> {
             Pageable pageable
     );
 
-    /**
-     *
-     * @param couponIdList
-     * @return
-     */
-    List<UserCoupon> findByCouponIdIn(List<Long> couponIdList);
+
+    List<UserCoupon> findByOrderIdAndUserId(Long orderId, Long userId);
+
 
     /**
      * 查找用户手上所有的优惠券 显示在用户的优惠券列表中
