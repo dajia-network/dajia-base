@@ -251,8 +251,11 @@ public class OrderService {
 		/** 只能退不超过当前订单总价的金额 **/
 		// BigDecimal productItemTotalPrice = orderUnitPrice.multiply(new
 		// BigDecimal(orderQuantity));
-		if (refundVal.compareTo(order.totalPrice) > 0) {
-			refundVal = order.totalPrice;
+		if (null == order.actualPay) {
+			order.actualPay = order.totalPrice;
+		}
+		if (refundVal.compareTo(order.actualPay) > 0) {
+			refundVal = order.actualPay;
 		}
 
 		return refundVal;
