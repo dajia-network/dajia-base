@@ -24,4 +24,18 @@ public class ProgressVO implements Comparable<ProgressVO> {
 	public int compareTo(ProgressVO o) {
 		return this.orderDate.compareTo(o.orderDate);
 	}
+
+	@Override
+	public String toString() {
+		return "ProgressVO{" +
+				"progressType='" + progressType + '\'' +
+				", orderId=" + orderId +
+				", productId=" + productId +
+				", productItemId=" + productItemId +
+				", orderQuantity=" + orderQuantity +
+				", priceOff=" + priceOff +
+				", orderUserName='" + orderUserName + '\'' +
+				", orderDate=" + orderDate +
+				'}';
+	}
 }

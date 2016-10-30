@@ -71,4 +71,40 @@ public class ProductVO {
 
 	public List<Price> prices;
 
+	@Override
+	public String toString() {
+		return "ProductVO{" +
+				"productId=" + productId +
+				", productItemId=" + productItemId +
+				", refId='" + refId + '\'' +
+				", shortName='" + shortName + '\'' +
+				", name='" + name + '\'' +
+				", brief='" + brief + '\'' +
+				", description='" + description + '\'' +
+				", spec='" + spec + '\'' +
+				", sold=" + sold +
+				", totalSold=" + totalSold +
+				", stock=" + stock +
+				", buyQuota=" + buyQuota +
+				", productStatus=" + productStatus +
+				", fixTop=" + fixTop +
+				", isPromoted='" + isPromoted + '\'' +
+				", originalPrice=" + originalPrice +
+				", currentPrice=" + currentPrice +
+				", postFee=" + postFee +
+				", startDate=" + startDate +
+				", expiredDate=" + expiredDate +
+				", targetPrice=" + targetPrice +
+				", priceOff=" + priceOff +
+				", soldNeeded=" + soldNeeded +
+				", progressValue=" + progressValue +
+				", nextOff=" + nextOff +
+				", isFav=" + isFav +
+				", status4Show='" + status4Show + '\'' +
+				", imgUrl='" + imgUrl + '\'' +
+				", imgUrl4List='" + imgUrl4List + '\'' +
+				", productImages=" + productImages +
+				", prices=" + prices +
+				'}';
+	}
 }

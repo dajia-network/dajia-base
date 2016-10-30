@@ -51,4 +51,21 @@ public class UserRefund extends BaseModel {
 	@Column(name = "api_msg")
 	public String apiMsg;
 
+	@Override
+	public String toString() {
+		return "UserRefund{" +
+				"refundId=" + refundId +
+				", userId=" + userId +
+				", productId=" + productId +
+				", productItemId=" + productItemId +
+				", orderId=" + orderId +
+				", refundDate=" + refundDate +
+				", refundValue=" + refundValue +
+				", refundType=" + refundType +
+				", refundStatus=" + refundStatus +
+				", refundType4Show='" + refundType4Show + '\'' +
+				", refundStatus4Show='" + refundStatus4Show + '\'' +
+				", apiMsg='" + apiMsg + '\'' +
+				'}';
+	}
 }

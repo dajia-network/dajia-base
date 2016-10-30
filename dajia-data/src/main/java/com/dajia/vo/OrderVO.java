@@ -102,4 +102,55 @@ public class OrderVO {
 	public List<Long> appliedCoupons;
 
 	public List<UserCoupon> appliedCouponsObj;
+
+	@Override
+	public String toString() {
+		return "OrderVO{" +
+				"orderId=" + orderId +
+				", orderItemId=" + orderItemId +
+				", trackingId='" + trackingId + '\'' +
+				", quantity=" + quantity +
+				", orderStatus=" + orderStatus +
+				", payType=" + payType +
+				", productId=" + productId +
+				", productItemId=" + productItemId +
+				", productDesc='" + productDesc + '\'' +
+				", productShared='" + productShared + '\'' +
+				", refUserId=" + refUserId +
+				", refOrderId=" + refOrderId +
+				", userId=" + userId +
+				", userName='" + userName + '\'' +
+				", userHeadImgUrl='" + userHeadImgUrl + '\'' +
+				", unitPrice=" + unitPrice +
+				", totalPrice=" + totalPrice +
+				", actualPay=" + actualPay +
+				", totalProductPrice=" + totalProductPrice +
+				", postFee=" + postFee +
+				", rewardValue=" + rewardValue +
+				", refundValue=" + refundValue +
+				", logisticAgent='" + logisticAgent + '\'' +
+				", logisticTrackingId='" + logisticTrackingId + '\'' +
+				", contactName='" + contactName + '\'' +
+				", contactMobile='" + contactMobile + '\'' +
+				", address='" + address + '\'' +
+				", comments='" + comments + '\'' +
+				", userComments='" + userComments + '\'' +
+				", adminComments='" + adminComments + '\'' +
+				", payType4Show='" + payType4Show + '\'' +
+				", orderStatus4Show='" + orderStatus4Show + '\'' +
+				", logisticAgent4Show='" + logisticAgent4Show + '\'' +
+				", orderDate=" + orderDate +
+				", userContact=" + userContact +
+				", productVO=" + productVO +
+				", rewardSrcUsers=" + rewardSrcUsers +
+				", progressList=" + progressList +
+				", refundList=" + refundList +
+				", productVOList=" + productVOList +
+				", cartItems=" + cartItems +
+				", orderItems=" + orderItems +
+				", userShares=" + userShares +
+				", appliedCoupons=" + appliedCoupons +
+				", appliedCouponsObj=" + appliedCouponsObj +
+				'}';
+	}
 }

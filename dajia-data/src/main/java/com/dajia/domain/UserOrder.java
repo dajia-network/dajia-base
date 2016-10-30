@@ -110,4 +110,40 @@ public class UserOrder extends BaseModel {
 	@Column(name = "actual_pay")
 	public BigDecimal actualPay;
 
+	@Override
+	public String toString() {
+		return "UserOrder{" +
+				"orderId=" + orderId +
+				", trackingId='" + trackingId + '\'' +
+				", productId=" + productId +
+				", productItemId=" + productItemId +
+				", productDesc='" + productDesc + '\'' +
+				", productShared='" + productShared + '\'' +
+				", userId=" + userId +
+				", refUserId=" + refUserId +
+				", refOrderId=" + refOrderId +
+				", paymentId='" + paymentId + '\'' +
+				", quantity=" + quantity +
+				", orderStatus=" + orderStatus +
+				", payType=" + payType +
+				", unitPrice=" + unitPrice +
+				", totalPrice=" + totalPrice +
+				", postFee=" + postFee +
+				", orderDate=" + orderDate +
+				", deliverDate=" + deliverDate +
+				", closeDate=" + closeDate +
+				", logisticAgent='" + logisticAgent + '\'' +
+				", logisticTrackingId='" + logisticTrackingId + '\'' +
+				", contactName='" + contactName + '\'' +
+				", contactMobile='" + contactMobile + '\'' +
+				", address='" + address + '\'' +
+				", pingxxCharge='" + pingxxCharge + '\'' +
+				", comments='" + comments + '\'' +
+				", userComments='" + userComments + '\'' +
+				", adminComments='" + adminComments + '\'' +
+				", orderItems=" + orderItems +
+				", userCouponIds='" + userCouponIds + '\'' +
+				", actualPay=" + actualPay +
+				'}';
+	}
 }

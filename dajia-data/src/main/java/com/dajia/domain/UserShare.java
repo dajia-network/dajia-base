@@ -39,4 +39,18 @@ public class UserShare extends BaseModel {
 	@Column(name = "share_type")
 	public Integer shareType;
 
+	@Override
+	public String toString() {
+		return "UserShare{" +
+				"shareId=" + shareId +
+				", userId=" + userId +
+				", orderId=" + orderId +
+				", productId=" + productId +
+				", productItemId=" + productItemId +
+				", visitUserId=" + visitUserId +
+				", visitUserName='" + visitUserName + '\'' +
+				", visitHeadImgUrl='" + visitHeadImgUrl + '\'' +
+				", shareType=" + shareType +
+				'}';
+	}
 }
