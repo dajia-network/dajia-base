@@ -3,12 +3,9 @@ package com.dajia.service;
 import com.dajia.domain.User;
 import com.dajia.domain.UserOrder;
 import com.dajia.repository.UserRepo;
-import com.dajia.util.ApiWechatUtils;
-import com.dajia.util.CommonUtils;
+import com.dajia.util.*;
 import com.dajia.util.CommonUtils.ActiveStatus;
 import com.dajia.util.CommonUtils.YesNoStatus;
-import com.dajia.util.EncodingUtil;
-import com.dajia.util.UserUtils;
 import com.dajia.vo.LoginUserVO;
 import com.dajia.vo.SalesIndicatorVO;
 import com.dajia.vo.SalesVO;
@@ -311,5 +308,27 @@ public class UserService {
 			logger.error("update user password failed, userId={}, reason={}", userId, ex.getMessage());
 		}
 		return updateCount > 0;
+	}
+
+	/**
+	 * 用户是否存在
+	 *
+	 * @param userId
+	 * @return
+	 */
+	public DajiaResult canFoundUser(Long userId) {
+		if (null == userId || userId <= 0) {
+			return DajiaResult.inputError("用户ID为空", null);
+		}
+
+		try {
+			if (!userRepo.exists(userId)) {
+				return DajiaResult.notFound("用户不存在", null);
+			}
+			return DajiaResult.success();
+
+		} catch (Exception ex) {
+			return DajiaResult.systemError("查找用户失败,系统异常", null, ex);
+		}
 	}
 }

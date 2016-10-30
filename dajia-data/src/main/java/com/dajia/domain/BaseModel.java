@@ -4,10 +4,11 @@ import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
+import java.io.Serializable;
 import java.util.Date;
 
 @MappedSuperclass
-public class BaseModel {
+public class BaseModel implements Serializable {
 
 	@Column(name = "created_date")
 	public Date createdDate;

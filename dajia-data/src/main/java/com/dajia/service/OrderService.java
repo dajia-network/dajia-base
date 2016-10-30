@@ -21,6 +21,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.dajia.domain.ProductItem;
 import com.dajia.domain.User;
+import com.dajia.domain.UserCoupon;
 import com.dajia.domain.UserOrder;
 import com.dajia.domain.UserOrderItem;
 import com.dajia.domain.UserReward;
@@ -36,6 +37,7 @@ import com.dajia.repository.UserShareRepo;
 import com.dajia.util.CommonUtils;
 import com.dajia.util.CommonUtils.ActiveStatus;
 import com.dajia.util.CommonUtils.OrderStatus;
+import com.dajia.util.DajiaResult;
 import com.dajia.vo.LoginUserVO;
 import com.dajia.vo.OrderFilterVO;
 import com.dajia.vo.OrderVO;
@@ -82,6 +84,9 @@ public class OrderService {
 	@Autowired
 	private ApiService apiService;
 
+	@Autowired
+	private UserCouponService userCouponService;
+
 	@Transactional
 	public UserOrder generateRobotOrder(Long productId, Integer quantity) {
 		ProductVO product = productService.loadProductDetail(productId);
@@ -118,6 +123,7 @@ public class OrderService {
 		ov.orderDate = order.orderDate;
 		ov.unitPrice = order.unitPrice;
 		ov.totalPrice = order.totalPrice;
+		ov.actualPay = order.actualPay;
 		ov.postFee = order.postFee;
 		ov.logisticAgent = order.logisticAgent;
 		ov.logisticTrackingId = order.logisticTrackingId;
@@ -245,8 +251,11 @@ public class OrderService {
 		/** 只能退不超过当前订单总价的金额 **/
 		// BigDecimal productItemTotalPrice = orderUnitPrice.multiply(new
 		// BigDecimal(orderQuantity));
-		if (refundVal.compareTo(order.totalPrice) > 0) {
-			refundVal = order.totalPrice;
+		if (null == order.actualPay) {
+			order.actualPay = order.totalPrice;
+		}
+		if (refundVal.compareTo(order.actualPay) > 0) {
+			refundVal = order.actualPay;
 		}
 
 		return refundVal;
@@ -358,6 +367,10 @@ public class OrderService {
 		}
 		OrderVO ov = this.convertOrderVO(order);
 		this.fillOrderVO(ov, order);
+		if (null != order.userCouponIds && order.userCouponIds.length() > 0) {
+			DajiaResult res = userCouponService.findCouponsByOrderId(order.orderId, order.userId);
+			ov.appliedCouponsObj = (List<UserCoupon>) res.data;
+		}
 		return ov;
 	}
 
