@@ -151,15 +151,15 @@ public class UserCouponService {
 					STATUS_SHOULD_NOT_REQUEST_AGAIN);
 
 			if (userAlreadyHave > 0) {
-				result = DajiaResult.successReturn("已经领过相同的优惠券", null, Boolean.FALSE);
+				result = DajiaResult.successReturn("已经领过相同的优惠券", null, null);
 			} else {
-				result = DajiaResult.successReturn(COMMON_MSG_QUERY_OK, null, Boolean.TRUE);
+				result = DajiaResult.successReturn(COMMON_MSG_QUERY_OK, null, couponExistsResult.data);
 			}
 
 			// 测试期间，只接受管理员账号
 			User user = userRepo.findOne(userId);
 			if (null != user && !user.isAdmin.equalsIgnoreCase(CommonUtils.Y)) {
-				result = DajiaResult.successReturn("非测试账号", null, Boolean.FALSE);
+				result = DajiaResult.successReturn("非测试账号", null, null);
 			}
 		} catch (Exception ex) {
 			logger.error("canRequest-countByUserIdAndCouponId failed, user={}, coupon={}", userId, couponId, ex);
