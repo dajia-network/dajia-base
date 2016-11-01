@@ -372,7 +372,7 @@ public class CommonUtils {
 	}
 
 	public enum RewardStatus {
-		INVALID(0, "尚未生效"), PENDING(1, "待退款"), COMPLETED(2, "已退款"), CANCELLED(3, "已取消"), ERROR(3, "出错"), SALES(4, "推广");
+		INVALID(0, "尚未生效"), PENDING(1, "待退款"), COMPLETED(2, "已退款"), CANCELLED(5, "已取消"), ERROR(3, "出错"), SALES(4, "推广");
 		private Integer key;
 		private String value;
 
