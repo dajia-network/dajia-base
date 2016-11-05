@@ -157,10 +157,10 @@ public class UserCouponService {
 			}
 
 			// 测试期间，只接受管理员账号
-			User user = userRepo.findOne(userId);
-			if (null != user && !user.isAdmin.equalsIgnoreCase(CommonUtils.Y)) {
-				result = DajiaResult.successReturn("非测试账号", null, null);
-			}
+//			User user = userRepo.findOne(userId);
+//			if (null != user && !user.isAdmin.equalsIgnoreCase(CommonUtils.Y)) {
+//				result = DajiaResult.successReturn("非测试账号", null, null);
+//			}
 		} catch (Exception ex) {
 			logger.error("canRequest-countByUserIdAndCouponId failed, user={}, coupon={}", userId, couponId, ex);
 			result = DajiaResult.systemError(COMMON_MSG_QUERY_FAILED + ",系统异常", null, ex);
@@ -328,8 +328,8 @@ public class UserCouponService {
 			}
 			total += userCoupon.value;
 		}
-
-		return DajiaResult.successReturn(COMMON_MSG_QUERY_OK, null, new BigDecimal(total));
+		BigDecimal amtOff = new BigDecimal(total);
+		return DajiaResult.successReturn(COMMON_MSG_QUERY_OK, null, amtOff.divide(new BigDecimal(100)));
 	}
 
 	public DajiaResult findCouponsByOrderId(Long orderId, Long userId) {

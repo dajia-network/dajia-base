@@ -1,12 +1,22 @@
 package com.dajia.domain;
 
-import org.apache.commons.lang3.StringUtils;
+import static com.dajia.domain.CouponConstants.LABEL_AREA;
+import static com.dajia.domain.CouponConstants.LABEL_TYPE;
+import static com.dajia.domain.CouponConstants.STATUS_ACTIVE;
+import static com.dajia.domain.CouponConstants.STATUS_USED;
 
-import javax.persistence.*;
-import static com.dajia.domain.CouponConstants.*;
-
+import java.text.DecimalFormat;
 import java.util.Calendar;
-import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.PostLoad;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 给用户发放的优惠券
@@ -194,9 +204,11 @@ public class UserCoupon extends BaseModel {
 
     @PostLoad
     public void setDisplayInfo() {
-        this.displayInfo = String.format("%d元%s%s", value,
-                StringUtils.trimToEmpty((String) LABEL_AREA.get(area)),
-                StringUtils.trimToEmpty((String) LABEL_TYPE.get(type)));
+    	double amtOff = (double) value / 100;
+    	DecimalFormat df = new DecimalFormat("#.00");
+    	String couponVal = df.format(amtOff);
+    	this.displayInfo = String.format("%s元%s%s", couponVal, StringUtils.trimToEmpty((String) LABEL_AREA.get(area)),
+    			StringUtils.trimToEmpty((String) LABEL_TYPE.get(type)));
     }
 
     @Override
