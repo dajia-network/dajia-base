@@ -273,7 +273,7 @@ public class RewardService {
 			}
 
 			// 如果因为优惠券因素，rewardValue超过订单实际支付金额，将两者取小
-			if (userOrder.actualPay.compareTo(rewardValue) <= 0) {
+			if (null != userOrder.actualPay && userOrder.actualPay.compareTo(rewardValue) <= 0) {
 				rewardValue = userOrder.actualPay;
 			}
 

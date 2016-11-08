@@ -408,8 +408,9 @@ public class OrderService {
 			comparePrice = userOrder.unitPrice;
 			progressList.add(pv);
 		}
-		List<UserReward> rewardList = rewardRepo.findTop5ByRefOrderIdAndRewardStatusOrderByCreatedDateDesc(ov.orderId,
-				CommonUtils.RewardStatus.PENDING.getKey());
+		List<UserReward> rewardList = rewardRepo
+				.findTop5ByRefOrderIdAndProductItemIdAndRewardStatusOrderByCreatedDateDesc(ov.orderId,
+						ov.productItemId, CommonUtils.RewardStatus.PENDING.getKey());
 		for (UserReward userReward : rewardList) {
 			ProgressVO pv = new ProgressVO();
 			pv.progressType = CommonUtils.refund_type_reward;

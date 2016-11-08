@@ -67,16 +67,17 @@ public class UserCouponService {
 	 * @param createdBy
 	 * @return
 	 */
-	private DajiaResult doPublishCoupon(Coupon c, Long userId, String createdBy) {
+	private DajiaResult doPublishCoupon(Coupon c, Integer amount, Long userId, String createdBy) {
 
 		DajiaResult canFindUser = userService.canFoundUser(userId);
 		if (canFindUser.isNotSucceed()) {
 			return canFindUser;
 		}
-
-		UserCoupon userCoupon = new UserCoupon(c, userId, null, createdBy);
 		try {
-			userCouponRepo.save(userCoupon);
+			for (int i = 0; i < amount; i++) {
+				UserCoupon userCoupon = new UserCoupon(c, userId, null, createdBy);
+				userCouponRepo.save(userCoupon);
+			}
 			return DajiaResult.success();
 		} catch (Exception ex) {
 			logger.error("save user coupon failed, couponId={}, userId={}, msg={}", c.id, userId, ex);
@@ -90,7 +91,7 @@ public class UserCouponService {
 	 * @param couponId
 	 * @param users
 	 */
-	public DajiaResult publishCoupons(Long couponId, List<Long> users, String createdBy) {
+	public DajiaResult publishCoupons(Long couponId, Integer amount, List<Long> users, String createdBy) {
 
 		if (null == couponId || couponId <= 0) {
 			return DajiaResult.inputError("优惠券发放失败,优惠券ID不存在", null);
@@ -110,7 +111,7 @@ public class UserCouponService {
 		int totalSuccess = 0;
 		DajiaResult succeed;
 		for (Long userId : users) {
-			succeed = doPublishCoupon(c, userId, createdBy);
+			succeed = doPublishCoupon(c, amount, userId, createdBy);
 			if (succeed.succeed) {
 				totalSuccess++;
 			}
