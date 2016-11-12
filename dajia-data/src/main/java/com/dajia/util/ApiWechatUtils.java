@@ -26,6 +26,8 @@ public class ApiWechatUtils {
 	public static final String wechat_callback_url = "http%3A%2F%2F51daja.com%2Fwechatoauth";
 	public static final String wechat_access_token_key = "access_token";
 	public static final String wechat_jsapi_key = "ticket";
+	public static final String wechat_create_qrcode_url = "https://api.weixin.qq.com/cgi-bin/qrcode/create";
+	public static final String wechat_show_qrcode_url = "https://mp.weixin.qq.com/cgi-bin/showqrcode";
 
 	public static void updateWechatUserInfo(User user, Map<String, String> userInfoMap) {
 		user.userName = userInfoMap.get("nickname");

@@ -489,7 +489,10 @@ public class ProductService {
 					logger.info("expire job {}, product item {} expired by time", jobToken, id);
 
 				} else if (productItem.stock <= 0) {
+					// 打群价产品售罄时不会直接结束打价
 					if (productItem.isPromoted.equalsIgnoreCase(CommonUtils.YesNoStatus.YES.toString())) {
+						productItem.fixTop = -10;
+						productItemRepo.save(productItem);
 						continue;
 					}
 					productItem.productStatus = ProductStatus.EXPIRED.getKey();

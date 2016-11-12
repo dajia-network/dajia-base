@@ -208,12 +208,30 @@ public class ApiService {
 		return ticket;
 	}
 
+	public String getProductQrcodeUrl(Long productId) throws JsonParseException, JsonMappingException, IOException {
+		String accessToken = getWechatAccessToken();
+		String createQrcodeUrl = ApiWechatUtils.wechat_create_qrcode_url + "?access_token=" + accessToken;
+		String paramStr = "{\"expire_seconds\": 10800, \"action_name\": \"QR_SCENE\", \"action_info\": {\"scene\": {\"scene_id\": "
+				+ productId + "}}}";
+		logger.info("create qrcode url: " + createQrcodeUrl);
+		RestTemplate restTemplate = new RestTemplate();
+		String retrunJsonStr = restTemplate.postForObject(createQrcodeUrl, paramStr, String.class);
+		logger.info("create qrcode result: " + retrunJsonStr);
+		ObjectMapper mapper = new ObjectMapper();
+		Map<String, String> map = new HashMap<String, String>();
+		map = mapper.readValue(retrunJsonStr, HashMap.class);
+		String ticket = map.get(ApiWechatUtils.wechat_jsapi_key);
+		String showQrcodeUrl = ApiWechatUtils.wechat_show_qrcode_url + "?ticket=" + ticket;
+		return showQrcodeUrl;
+	}
+
 	public String getWechatSignature(String timestamp, String nonceStr, String url) {
 		String ticket = null;
 		try {
 			ticket = getWechatJsapiTicket();
 		} catch (Exception ex) {
-			logger.error("get wechat sig error, timestamp={}, nonceStr={}, url={}, error={}", timestamp, nonceStr, url, ex.getMessage());
+			logger.error("get wechat sig error, timestamp={}, nonceStr={}, url={}, error={}", timestamp, nonceStr, url,
+					ex.getMessage());
 		}
 		String str = "jsapi_ticket=" + ticket + "&noncestr=" + nonceStr + "&timestamp=" + timestamp + "&url=" + url;
 		logger.info("wechat signature str: " + str);
