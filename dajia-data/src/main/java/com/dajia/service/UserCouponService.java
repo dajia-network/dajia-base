@@ -216,7 +216,7 @@ public class UserCouponService {
 	 * @param userId
 	 * @return
 	 */
-	public DajiaResult getUserCoupons(Long userId, Pageable pageable) {
+	public DajiaResult getUserCoupons(Long userId, Long gmtExpired, Pageable pageable) {
 
 		DajiaResult canFindUser = userService.canFoundUser(userId);
 		if (canFindUser.isNotSucceed()) {
@@ -224,7 +224,7 @@ public class UserCouponService {
 		}
 
 		try {
-			Page<UserCoupon> coupons = userCouponRepo.findByUserIdOrderByStatusAscGmtExpiredDesc(userId, pageable);
+			Page<UserCoupon> coupons = userCouponRepo.findByUserIdAndGmtExpiredAfterOrderByStatusAscGmtExpiredDesc(userId, gmtExpired, pageable);
 			return DajiaResult.successReturn(COMMON_MSG_QUERY_OK, null, coupons);
 		} catch (Exception ex) {
 			return DajiaResult.systemError("获取优惠券列表失败,系统异常", null, ex);

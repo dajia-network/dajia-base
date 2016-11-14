@@ -52,7 +52,7 @@ public interface UserCouponRepo extends CrudRepository<UserCoupon, Long> {
      * @param pageable
      * @return
      */
-    Page<UserCoupon> findByUserIdOrderByStatusAscGmtExpiredDesc(Long userId, Pageable pageable);
+    Page<UserCoupon> findByUserIdAndGmtExpiredAfterOrderByStatusAscGmtExpiredDesc(Long userId, Long gmtExpired, Pageable pageable);
 
     /**
      * TODO 是否需要指定status列表
