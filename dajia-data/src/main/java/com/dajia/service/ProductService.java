@@ -274,7 +274,7 @@ public class ProductService {
 
 	@Transactional
 	public ProductVO loadProductDetailByItemId(Long itemId) {
-		logger.info("productItemId: " + itemId);
+		// logger.info("productItemId: " + itemId);
 		ProductItem pi = productItemRepo.findOne(itemId);
 		if (null == pi) {
 			return null;

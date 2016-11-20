@@ -152,10 +152,19 @@ public class OrderService {
 		Page<UserOrder> orders = null;
 		String orderType = "all";
 		Integer orderStatus = -1;
+		String trackingId = null;
 		if (null != orderFilter) {
 			orderType = orderFilter.type;
 			orderStatus = orderFilter.status;
+			trackingId = orderFilter.trackingId;
 		}
+		// 如果搜索订单跟踪号直接返回结果
+		if (null != trackingId) {
+			orders = orderRepo.findByTrackingIdAndIsActiveOrderByOrderDateDesc(trackingId, ActiveStatus.YES.toString(),
+					pageable);
+			return orders;
+		}
+
 		List<Integer> orderStatusList = new ArrayList<Integer>();
 		if (orderStatus >= 0) {
 			orderStatusList.add(orderStatus);
