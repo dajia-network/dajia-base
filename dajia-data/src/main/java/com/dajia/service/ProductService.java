@@ -550,7 +550,7 @@ public class ProductService {
 			}
 			if (price.sold >= productItem.sold) {
 				BigDecimal priceOff = productItem.currentPrice.add(price.targetPrice.negate()).divide(
-						new BigDecimal(price.sold - productItem.sold + 1), 2, RoundingMode.HALF_UP);
+						new BigDecimal(price.sold - productItem.sold + quantity), 2, RoundingMode.HALF_UP);
 				productItem.currentPrice = productItem.currentPrice.add(priceOff.multiply(new BigDecimal(quantity))
 						.negate());
 				break;
