@@ -147,6 +147,12 @@ public class OrderService {
 		return orders;
 	}
 
+	public List<UserOrder> loadOrdersByUserId(Long userId, List<Integer> orderStatusList) {
+		List<UserOrder> orders = orderRepo.findByUserIdAndOrderStatusInAndIsActiveOrderByOrderDateDesc(userId,
+				orderStatusList, CommonUtils.ActiveStatus.YES.toString());
+		return orders;
+	}
+
 	public Page<UserOrder> loadOrdersByPage(Integer pageNum, OrderFilterVO orderFilter) {
 		Pageable pageable = new PageRequest(pageNum - 1, CommonUtils.page_item_perpage);
 		Page<UserOrder> orders = null;
@@ -555,10 +561,12 @@ public class OrderService {
 		Long productItemId = null;
 		if (null != ov.productItemId) {
 			productItemId = ov.productItemId;
+			ov.orderItemId = 0L;
 		} else if (null != ov.orderItems) {
 			for (UserOrderItem oi : ov.orderItems) {
 				if (oi.productId.longValue() == productId.longValue()) {
 					productItemId = oi.productItemId;
+					ov.orderItemId = oi.orderItemId;
 					break;
 				}
 			}
