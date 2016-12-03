@@ -29,6 +29,11 @@ public class ApiWechatUtils {
 	public static final String wechat_create_qrcode_url = "https://api.weixin.qq.com/cgi-bin/qrcode/create";
 	public static final String wechat_show_qrcode_url = "https://mp.weixin.qq.com/cgi-bin/showqrcode";
 
+	public static final String wechat_menu_001 = "<![CDATA[MENU_001]]>";
+	public static final String wechat_menu_002 = "<![CDATA[MENU_002]]>";
+	public static final String wechat_menu_003 = "<![CDATA[MENU_003]]>";
+	public static final String wechat_menu_004 = "<![CDATA[MENU_004]]>";
+
 	public static void updateWechatUserInfo(User user, Map<String, String> userInfoMap) {
 		user.userName = userInfoMap.get("nickname");
 		user.headImgUrl = userInfoMap.get("headimgurl");
