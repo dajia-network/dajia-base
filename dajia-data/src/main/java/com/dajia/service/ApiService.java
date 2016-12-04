@@ -318,26 +318,49 @@ public class ApiService {
 			String eventKeyStr = CommonUtils.getSingleValueFromXml(doc, "EventKey");
 			if (eventKeyStr.equalsIgnoreCase(ApiWechatUtils.wechat_menu_001)) {
 				// 常见问题
-				content = "⊙０⊙遇到问题了？别着急，看看这里有没有您需要的~" + "</br>回复【1】我先打价购买的话，会不会比较吃亏？" + "</br>回复【2】什么是分享额外折扣？如何获得？"
-						+ "</br>回复【3】商品何时发货？" + "</br>回复【4】分享额外折扣何时到账？退款到哪里？" + "</br>回复【5】如何进行退换货？" + "</br>"
-						+ "</br>如果您的问题不在此列，请戳左下的小键盘转换成聊天窗口，把您的问题告诉给我们，工作人员会尽快给您满意的答复哦，谢谢٩(๑ᵒ̴̶̷͈᷄ᗨᵒ̴̶̷͈᷅)و";
-
+				StringBuffer sb = new StringBuffer();
+				sb.append("⊙０⊙遇到问题了？别着急，看看这里有没有您需要的~").append("\n\n");
+				sb.append("回复【1】我先打价购买的话，会不会比较吃亏？").append("\n");
+				sb.append("回复【2】什么是分享额外折扣？如何获得？").append("\n");
+				sb.append("回复【3】商品何时发货？").append("\n");
+				sb.append("回复【4】分享额外折扣何时到账？退款到哪里？").append("\n");
+				sb.append("回复【5】如何进行退换货？").append("\n\n");
+				sb.append("如果您的问题不在此列，请戳左下的小键盘转换成聊天窗口，把您的问题告诉给我们，工作人员会尽快给您满意的答复哦，谢谢٩(๑ᵒ̴̶̷͈᷄ᗨᵒ̴̶̷͈᷅)").append("\n");
+				content = sb.toString();
 			} else if (eventKeyStr.equalsIgnoreCase(ApiWechatUtils.wechat_menu_002)) {
 				// 自助退货
-
+				StringBuffer sb = new StringBuffer();
+				sb.append("(•̀ω•́)✧请先按左下角小键盘按钮，然后再按以下格式内容给客服留言~提交退货申请，审核成功后，客服会把退货地址发送给您，如不在退货规则内，也会告知您~").append(
+						"\n\n");
+				sb.append("购买日期：20150101").append("\n");
+				sb.append("订单号码：XXXXXXXX").append("\n");
+				sb.append("退货原因：文字文字文字").append("\n");
+				content = sb.toString();
 			} else if (eventKeyStr.equalsIgnoreCase(ApiWechatUtils.wechat_menu_003)) {
 				// 在线留言
-
+				StringBuffer sb = new StringBuffer();
+				sb.append("请戳左下的小键盘转换成聊天窗口，把您的问题告诉给我们，工作人员会尽快给您满意的答复哦，谢谢٩(๑ᵒ̴̶̷͈᷄ᗨᵒ̴̶̷͈᷅)و").append("\n\n");
+				content = sb.toString();
 			} else if (eventKeyStr.equalsIgnoreCase(ApiWechatUtils.wechat_menu_004)) {
 				// 商务合作
-
+				StringBuffer sb = new StringBuffer();
+				sb.append("如您有意向与打价网共同发展，请发邮件至：postmaster@51daja.bid或直接在公众号留言，我们会尽快给您回复~").append("\n\n");
+				content = sb.toString();
 			}
 		}
-		return generateWechatEchoStr(appId, userOpenId, content);
+		return generateWechatTxtReply(appId, userOpenId, content);
 	}
 
-	private String generateWechatEchoStr(String appId, String userOpenId, String content) {
+	private String generateWechatTxtReply(String appId, String userOpenId, String content) {
 		// to be added
-		return content;
+		StringBuffer sb = new StringBuffer();
+		sb.append("<xml>");
+		sb.append("<ToUserName>").append(userOpenId).append("</ToUserName>");
+		sb.append("<FromUserName>").append(appId).append("</FromUserName>");
+		sb.append("<CreateTime>").append(System.currentTimeMillis()).append("</CreateTime>");
+		sb.append("<MsgType>").append("text").append("</MsgType>");
+		sb.append("<Content>").append(content).append("</Content>");
+		sb.append("</xml>");
+		return sb.toString();
 	}
 }
