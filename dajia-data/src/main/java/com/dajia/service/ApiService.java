@@ -302,4 +302,24 @@ public class ApiService {
 		}
 	}
 
+	public String getWechatEchoStrByEventKey(String eventKey) {
+		String echoStr = "";
+		if (eventKey.equalsIgnoreCase(ApiWechatUtils.wechat_menu_001)) {
+			// 常见问题
+			echoStr = "⊙０⊙遇到问题了？别着急，看看这里有没有您需要的~" + "</br>回复【1】我先打价购买的话，会不会比较吃亏？" + "</br>回复【2】什么是分享额外折扣？如何获得？"
+					+ "</br>回复【3】商品何时发货？" + "</br>回复【4】分享额外折扣何时到账？退款到哪里？" + "</br>回复【5】如何进行退换货？" + "</br>"
+					+ "</br>如果您的问题不在此列，请戳左下的小键盘转换成聊天窗口，把您的问题告诉给我们，工作人员会尽快给您满意的答复哦，谢谢٩(๑ᵒ̴̶̷͈᷄ᗨᵒ̴̶̷͈᷅)و";
+
+		} else if (eventKey.equalsIgnoreCase(ApiWechatUtils.wechat_menu_002)) {
+			// 自助退货
+
+		} else if (eventKey.equalsIgnoreCase(ApiWechatUtils.wechat_menu_003)) {
+			// 在线留言
+
+		} else if (eventKey.equalsIgnoreCase(ApiWechatUtils.wechat_menu_004)) {
+			// 商务合作
+
+		}
+		return echoStr;
+	}
 }
