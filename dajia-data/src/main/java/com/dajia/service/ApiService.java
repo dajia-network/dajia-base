@@ -1,20 +1,15 @@
 package com.dajia.service;
 
-import com.dajia.domain.Property;
-import com.dajia.domain.User;
-import com.dajia.domain.UserOrder;
-import com.dajia.repository.PropertyRepo;
-import com.dajia.util.*;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kdt.api.KdtApiClient;
-import com.pingplusplus.Pingpp;
-import com.pingplusplus.exception.PingppException;
-import com.pingplusplus.model.Charge;
-import com.pingplusplus.model.Refund;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
+
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
@@ -23,13 +18,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.w3c.dom.Document;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
+import com.dajia.domain.Property;
+import com.dajia.domain.User;
+import com.dajia.domain.UserOrder;
+import com.dajia.repository.PropertyRepo;
+import com.dajia.util.ApiKdtUtils;
+import com.dajia.util.ApiPingppUtils;
+import com.dajia.util.ApiWdUtils;
+import com.dajia.util.ApiWechatUtils;
+import com.dajia.util.CommonUtils;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kdt.api.KdtApiClient;
+import com.pingplusplus.Pingpp;
+import com.pingplusplus.exception.PingppException;
+import com.pingplusplus.model.Charge;
+import com.pingplusplus.model.Refund;
 
 @Service
 public class ApiService {
@@ -302,24 +309,35 @@ public class ApiService {
 		}
 	}
 
-	public String getWechatEchoStrByEventKey(String eventKey) {
-		String echoStr = "";
-		if (eventKey.equalsIgnoreCase(ApiWechatUtils.wechat_menu_001)) {
-			// 常见问题
-			echoStr = "⊙０⊙遇到问题了？别着急，看看这里有没有您需要的~" + "</br>回复【1】我先打价购买的话，会不会比较吃亏？" + "</br>回复【2】什么是分享额外折扣？如何获得？"
-					+ "</br>回复【3】商品何时发货？" + "</br>回复【4】分享额外折扣何时到账？退款到哪里？" + "</br>回复【5】如何进行退换货？" + "</br>"
-					+ "</br>如果您的问题不在此列，请戳左下的小键盘转换成聊天窗口，把您的问题告诉给我们，工作人员会尽快给您满意的答复哦，谢谢٩(๑ᵒ̴̶̷͈᷄ᗨᵒ̴̶̷͈᷅)و";
+	public String getWechatEchoStrByEventKey(Document doc) {
+		String eventStr = CommonUtils.getSingleValueFromXml(doc, "Event");
+		String appId = CommonUtils.getSingleValueFromXml(doc, "ToUserName");
+		String userOpenId = CommonUtils.getSingleValueFromXml(doc, "FromUserName");
+		String content = "";
+		if (null != eventStr && eventStr.equalsIgnoreCase("CLICK")) {
+			String eventKeyStr = CommonUtils.getSingleValueFromXml(doc, "EventKey");
+			if (eventKeyStr.equalsIgnoreCase(ApiWechatUtils.wechat_menu_001)) {
+				// 常见问题
+				content = "⊙０⊙遇到问题了？别着急，看看这里有没有您需要的~" + "</br>回复【1】我先打价购买的话，会不会比较吃亏？" + "</br>回复【2】什么是分享额外折扣？如何获得？"
+						+ "</br>回复【3】商品何时发货？" + "</br>回复【4】分享额外折扣何时到账？退款到哪里？" + "</br>回复【5】如何进行退换货？" + "</br>"
+						+ "</br>如果您的问题不在此列，请戳左下的小键盘转换成聊天窗口，把您的问题告诉给我们，工作人员会尽快给您满意的答复哦，谢谢٩(๑ᵒ̴̶̷͈᷄ᗨᵒ̴̶̷͈᷅)و";
 
-		} else if (eventKey.equalsIgnoreCase(ApiWechatUtils.wechat_menu_002)) {
-			// 自助退货
+			} else if (eventKeyStr.equalsIgnoreCase(ApiWechatUtils.wechat_menu_002)) {
+				// 自助退货
 
-		} else if (eventKey.equalsIgnoreCase(ApiWechatUtils.wechat_menu_003)) {
-			// 在线留言
+			} else if (eventKeyStr.equalsIgnoreCase(ApiWechatUtils.wechat_menu_003)) {
+				// 在线留言
 
-		} else if (eventKey.equalsIgnoreCase(ApiWechatUtils.wechat_menu_004)) {
-			// 商务合作
+			} else if (eventKeyStr.equalsIgnoreCase(ApiWechatUtils.wechat_menu_004)) {
+				// 商务合作
 
+			}
 		}
-		return echoStr;
+		return generateWechatEchoStr(appId, userOpenId, content);
+	}
+
+	private String generateWechatEchoStr(String appId, String userOpenId, String content) {
+		// to be added
+		return content;
 	}
 }

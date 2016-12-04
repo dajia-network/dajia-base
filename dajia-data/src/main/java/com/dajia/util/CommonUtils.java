@@ -10,10 +10,14 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.w3c.dom.CharacterData;
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import com.dajia.domain.Price;
 import com.dajia.domain.Product;
@@ -23,6 +27,7 @@ import com.dajia.vo.PaginationVO;
 import com.dajia.vo.ProductVO;
 
 public class CommonUtils {
+	static Logger logger = LoggerFactory.getLogger(CommonUtils.class);
 
 	public static final String return_val_success = "success";
 	public static final String return_val_failed = "failed";
@@ -241,6 +246,19 @@ public class CommonUtils {
 			return cd.getData();
 		}
 		return "";
+	}
+
+	public static String getSingleValueFromXml(Document doc, String tagName) {
+		NodeList nodes = doc.getElementsByTagName(tagName);
+		if (null != nodes && nodes.getLength() > 0) {
+			Element element = (Element) nodes.item(0);
+			String val = getCharacterDataFromElement(element);
+			logger.info(tagName + ": " + val);
+			return val;
+		} else {
+			logger.error(tagName + " not found!");
+		}
+		return null;
 	}
 
 	public enum ActiveStatus {
