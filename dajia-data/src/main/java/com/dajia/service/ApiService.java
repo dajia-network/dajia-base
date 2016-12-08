@@ -29,6 +29,7 @@ import com.dajia.util.ApiPingppUtils;
 import com.dajia.util.ApiWdUtils;
 import com.dajia.util.ApiWechatUtils;
 import com.dajia.util.CommonUtils;
+import com.dajia.vo.WechatArticleVO;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -309,50 +310,116 @@ public class ApiService {
 		}
 	}
 
-	public String getWechatEchoStrByEventKey(Document doc) {
-		String eventStr = CommonUtils.getSingleValueFromXml(doc, "Event");
+	public String getWechatEchoStr(Document doc) {
+		String msgType = CommonUtils.getSingleValueFromXml(doc, "MsgType");
 		String appId = CommonUtils.getSingleValueFromXml(doc, "ToUserName");
 		String userOpenId = CommonUtils.getSingleValueFromXml(doc, "FromUserName");
-		String content = "";
-		if (null != eventStr && eventStr.equalsIgnoreCase("CLICK")) {
-			String eventKeyStr = CommonUtils.getSingleValueFromXml(doc, "EventKey");
-			if (eventKeyStr.equalsIgnoreCase(ApiWechatUtils.wechat_menu_001)) {
-				// 常见问题
+		String content2User = "";
+		String echoStr = "";
+
+		if (null != msgType && msgType.equalsIgnoreCase("text")) {
+			// 用户发送信息
+			String contentFromUser = CommonUtils.getSingleValueFromXml(doc, "Content");
+			if (null != contentFromUser) {
+				if (contentFromUser.indexOf("1") == 0) {
+					StringBuffer sb = new StringBuffer();
+					sb.append("问：我先打价购买的话，会不会比较吃亏？").append("\n\n");
+					sb.append("答：୧(⁼̴̶̤̀ω⁼̴̶̤́)૭当然不会啦~").append("\n");
+					sb.append("所有商品的最终成交价格都以打价结束最后一件商品价格为准，差价之后会退还给您的哦~").append("\n");
+					sb.append("比如：您购买某商品10：00并付款100元，11：00商品最终价格被打到90元，打价结束，那么我们会退还您10元。").append("\n");
+					content2User = sb.toString();
+				} else if (contentFromUser.indexOf("2") == 0) {
+					StringBuffer sb = new StringBuffer();
+					sb.append("问：什么是分享额外折扣？如何获得？").append("\n\n");
+					sb.append("答：您打价购买某件商品后分享这件商品给朋友，只要朋友也通过分享链接成功购买，您即可获得此商品最终成交价的10%作为分享额外折扣~").append("\n");
+					sb.append("成功邀请两位朋友可以获得20%额外折扣~~").append("\n");
+					sb.append("如果邀请10位好友，就免单啦✧*｡٩(ˊᗜˋ*)و✧*").append("\n");
+					sb.append("邀请成功与否可以在<a href=\"http://51daja.com/app/index.html#/tab/prog\">打价实况</a>查看哦！").append(
+							"\n");
+					content2User = sb.toString();
+				} else if (contentFromUser.indexOf("3") == 0) {
+					StringBuffer sb = new StringBuffer();
+					sb.append("问：商品何时发货？").append("\n\n");
+					sb.append(
+							"答：(•̀ω•́)✧正常情况下，打价网会在商品打价结束后的1-3天内发货哦~详细的物流跟踪可以在“我是打手-<a href=\"http://51daja.com/app/index.html#/tab/mine/orders\">我的订单</a>”里查看")
+							.append("\n");
+					content2User = sb.toString();
+				} else if (contentFromUser.indexOf("4") == 0) {
+					StringBuffer sb = new StringBuffer();
+					sb.append("问：商品分享折扣何时到账？分享折扣退款到哪里？").append("\n\n");
+					sb.append("答：(✪ω✪)商品分享折扣在打价结束后7-15个工作日内返还，退款到您支付时所用的银行账号里。").append("\n");
+					content2User = sb.toString();
+				} else if (contentFromUser.indexOf("5") == 0) {
+					// 图文消息，特殊处理，直接返回。
+					WechatArticleVO article = new WechatArticleVO();
+					article.title = "打价网退换货政策";
+					article.description = "一、  无理由退货政策1.       打价网承诺，对于您（作为消费者）通过打价网购买的商品，若商品能够保持";
+					article.picUrl = "http://mmbiz.qpic.cn/mmbiz/0FVK0HOcKibcqLcna2d21AHB0xF3qCJ7nfK8MibKVpZV6oNhOr6ckFtetsMycYobm4iby10sXgKPiaxPiaT7utCxl3w/0?wx_fmt=jpeg";
+					article.url = "http://mp.weixin.qq.com/s?__biz=MzAwNTg1MTI3Ng==&mid=100000002&idx=1&sn=37c18262836f113f26dc60215a96b9d4#rd";
+					return generateWechatArticleReply(appId, userOpenId, article);
+				} else {
+					StringBuffer sb = new StringBuffer();
+					sb.append("⊙０⊙遇到问题了？别着急，看看这里有没有您需要的~").append("\n\n");
+					sb.append("回复【1】我先打价购买的话，会不会比较吃亏？").append("\n");
+					sb.append("回复【2】什么是分享额外折扣？如何获得？").append("\n");
+					sb.append("回复【3】商品何时发货？").append("\n");
+					sb.append("回复【4】分享额外折扣何时到账？退款到哪里？").append("\n");
+					sb.append("回复【5】如何进行退换货？").append("\n\n");
+					sb.append("如果您的问题不在此列，请戳左下的小键盘转换成聊天窗口，把您的问题告诉给我们，工作人员会尽快给您满意的答复哦，谢谢٩(๑ᵒ̴̶̷͈᷄ᗨᵒ̴̶̷͈᷅)").append("\n");
+					content2User = sb.toString();
+				}
+			}
+
+		} else if (null != msgType && msgType.equalsIgnoreCase("event")) {
+			String eventStr = CommonUtils.getSingleValueFromXml(doc, "Event");
+			// 用户关注公众号
+			if (null != eventStr && eventStr.equalsIgnoreCase("subscribe")) {
 				StringBuffer sb = new StringBuffer();
-				sb.append("⊙０⊙遇到问题了？别着急，看看这里有没有您需要的~").append("\n\n");
-				sb.append("回复【1】我先打价购买的话，会不会比较吃亏？").append("\n");
-				sb.append("回复【2】什么是分享额外折扣？如何获得？").append("\n");
-				sb.append("回复【3】商品何时发货？").append("\n");
-				sb.append("回复【4】分享额外折扣何时到账？退款到哪里？").append("\n");
-				sb.append("回复【5】如何进行退换货？").append("\n\n");
-				sb.append("如果您的问题不在此列，请戳左下的小键盘转换成聊天窗口，把您的问题告诉给我们，工作人员会尽快给您满意的答复哦，谢谢٩(๑ᵒ̴̶̷͈᷄ᗨᵒ̴̶̷͈᷅)").append("\n");
-				content = sb.toString();
-			} else if (eventKeyStr.equalsIgnoreCase(ApiWechatUtils.wechat_menu_002)) {
-				// 自助退货
-				StringBuffer sb = new StringBuffer();
-				sb.append("(•̀ω•́)✧请先按左下角小键盘按钮，然后再按以下格式内容给客服留言~提交退货申请，审核成功后，客服会把退货地址发送给您，如不在退货规则内，也会告知您~").append(
-						"\n\n");
-				sb.append("购买日期：20150101").append("\n");
-				sb.append("订单号码：XXXXXXXX").append("\n");
-				sb.append("退货原因：文字文字文字").append("\n");
-				content = sb.toString();
-			} else if (eventKeyStr.equalsIgnoreCase(ApiWechatUtils.wechat_menu_003)) {
-				// 在线留言
-				StringBuffer sb = new StringBuffer();
-				sb.append("请戳左下的小键盘转换成聊天窗口，把您的问题告诉给我们，工作人员会尽快给您满意的答复哦，谢谢٩(๑ᵒ̴̶̷͈᷄ᗨᵒ̴̶̷͈᷅)و").append("\n\n");
-				content = sb.toString();
-			} else if (eventKeyStr.equalsIgnoreCase(ApiWechatUtils.wechat_menu_004)) {
-				// 商务合作
-				StringBuffer sb = new StringBuffer();
-				sb.append("如您有意向与打价网共同发展，请发邮件至：postmaster@51daja.bid或直接在公众号留言，我们会尽快给您回复~").append("\n\n");
-				content = sb.toString();
+				sb.append("欢迎来打价~！").append("\n");
+				sb.append("每晚8点准时上新~！/坏笑").append("\n");
+				content2User = sb.toString();
+			}
+			// 用户点击菜单
+			else if (null != eventStr && eventStr.equalsIgnoreCase("CLICK")) {
+				String eventKeyStr = CommonUtils.getSingleValueFromXml(doc, "EventKey");
+				if (eventKeyStr.equalsIgnoreCase(ApiWechatUtils.wechat_menu_001)) {
+					// 常见问题
+					StringBuffer sb = new StringBuffer();
+					sb.append("⊙０⊙遇到问题了？别着急，看看这里有没有您需要的~").append("\n\n");
+					sb.append("回复【1】我先打价购买的话，会不会比较吃亏？").append("\n");
+					sb.append("回复【2】什么是分享额外折扣？如何获得？").append("\n");
+					sb.append("回复【3】商品何时发货？").append("\n");
+					sb.append("回复【4】分享额外折扣何时到账？退款到哪里？").append("\n");
+					sb.append("回复【5】如何进行退换货？").append("\n\n");
+					sb.append("如果您的问题不在此列，请戳左下的小键盘转换成聊天窗口，把您的问题告诉给我们，工作人员会尽快给您满意的答复哦，谢谢٩(๑ᵒ̴̶̷͈᷄ᗨᵒ̴̶̷͈᷅)").append("\n");
+					content2User = sb.toString();
+				} else if (eventKeyStr.equalsIgnoreCase(ApiWechatUtils.wechat_menu_002)) {
+					// 自助退货
+					StringBuffer sb = new StringBuffer();
+					sb.append("(•̀ω•́)✧请先按左下角小键盘按钮，然后再按以下格式内容给客服留言~提交退货申请，审核成功后，客服会把退货地址发送给您，如不在退货规则内，也会告知您~").append(
+							"\n\n");
+					sb.append("购买日期：20150101").append("\n");
+					sb.append("订单号码：XXXXXXXX").append("\n");
+					sb.append("退货原因：文字文字文字").append("\n");
+					content2User = sb.toString();
+				} else if (eventKeyStr.equalsIgnoreCase(ApiWechatUtils.wechat_menu_003)) {
+					// 在线留言
+					StringBuffer sb = new StringBuffer();
+					sb.append("请戳左下的小键盘转换成聊天窗口，把您的问题告诉给我们，工作人员会尽快给您满意的答复哦，谢谢٩(๑ᵒ̴̶̷͈᷄ᗨᵒ̴̶̷͈᷅)و").append("\n");
+					content2User = sb.toString();
+				} else if (eventKeyStr.equalsIgnoreCase(ApiWechatUtils.wechat_menu_004)) {
+					// 商务合作
+					StringBuffer sb = new StringBuffer();
+					sb.append("如您有意向与打价网共同发展，请发邮件至：postmaster@51daja.bid或直接在公众号留言，我们会尽快给您回复~").append("\n\n");
+					content2User = sb.toString();
+				}
 			}
 		}
-		return generateWechatTxtReply(appId, userOpenId, content);
+		echoStr = generateWechatTxtReply(appId, userOpenId, content2User);
+		return echoStr;
 	}
 
 	private String generateWechatTxtReply(String appId, String userOpenId, String content) {
-		// to be added
 		StringBuffer sb = new StringBuffer();
 		sb.append("<xml>");
 		sb.append("<ToUserName>").append(userOpenId).append("</ToUserName>");
@@ -360,6 +427,25 @@ public class ApiService {
 		sb.append("<CreateTime>").append(System.currentTimeMillis()).append("</CreateTime>");
 		sb.append("<MsgType>").append("text").append("</MsgType>");
 		sb.append("<Content>").append(content).append("</Content>");
+		sb.append("</xml>");
+		return sb.toString();
+	}
+
+	private String generateWechatArticleReply(String appId, String userOpenId, WechatArticleVO article) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("<xml>");
+		sb.append("<ToUserName>").append(userOpenId).append("</ToUserName>");
+		sb.append("<FromUserName>").append(appId).append("</FromUserName>");
+		sb.append("<CreateTime>").append(System.currentTimeMillis()).append("</CreateTime>");
+		sb.append("<ArticleCount>1</ArticleCount>");
+		sb.append("<Articles>");
+		sb.append("<item>");
+		sb.append("<Title>").append(article.title).append("</Title> ");
+		sb.append("<Description>").append(article.description).append("</Description>");
+		sb.append("<PicUrl>").append(article.picUrl).append("</PicUrl>");
+		sb.append("<Url>").append(article.url).append("</Url>");
+		sb.append("</item>");
+		sb.append("</Articles>");
 		sb.append("</xml>");
 		return sb.toString();
 	}
