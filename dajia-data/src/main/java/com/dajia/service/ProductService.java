@@ -39,6 +39,7 @@ import com.dajia.repository.UserOrderRepo;
 import com.dajia.repository.UserRewardRepo;
 import com.dajia.util.ApiKdtUtils;
 import com.dajia.util.ApiWdUtils;
+import com.dajia.util.ApiWechatUtils;
 import com.dajia.util.CommonUtils;
 import com.dajia.util.CommonUtils.ActiveStatus;
 import com.dajia.util.CommonUtils.OrderStatus;

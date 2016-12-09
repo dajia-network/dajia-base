@@ -30,11 +30,17 @@ public class ApiWechatUtils {
 	public static final String wechat_jsapi_key = "ticket";
 	public static final String wechat_create_qrcode_url = "https://api.weixin.qq.com/cgi-bin/qrcode/create";
 	public static final String wechat_show_qrcode_url = "https://mp.weixin.qq.com/cgi-bin/showqrcode";
+	public static final String wechat_send_template_msg_url = "https://api.weixin.qq.com/cgi-bin/message/template/send";
 
 	public static final String wechat_menu_001 = "MENU_001";
 	public static final String wechat_menu_002 = "MENU_002";
 	public static final String wechat_menu_003 = "MENU_003";
 	public static final String wechat_menu_004 = "MENU_004";
+
+	public static final String wechat_msg_template_order_success = "82BfWMSfKDAitcS_-A7hR0K4EFTwMNkABvB1dazfVdE";
+	public static final String wechat_msg_template_refund_success = "-e6DwVqd81KmX_lEipb82TWw6UuoT8kC7YoJyalBCws";
+
+	public static final String dajia_app_url = "http://51daja.com/app/index.html";
 
 	public static void updateWechatUserInfo(User user, Map<String, String> userInfoMap) {
 		user.userName = userInfoMap.get("nickname");

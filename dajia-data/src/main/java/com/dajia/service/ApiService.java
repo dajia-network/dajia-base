@@ -29,6 +29,8 @@ import com.dajia.util.ApiPingppUtils;
 import com.dajia.util.ApiWdUtils;
 import com.dajia.util.ApiWechatUtils;
 import com.dajia.util.CommonUtils;
+import com.dajia.vo.OrderVO;
+import com.dajia.vo.ProductVO;
 import com.dajia.vo.WechatArticleVO;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -49,6 +51,9 @@ public class ApiService {
 
 	@Autowired
 	private OrderService orderService;
+
+	@Autowired
+	private ProductService productService;
 
 	@Autowired
 	EhCacheCacheManager ehcacheManager;
@@ -263,8 +268,8 @@ public class ApiService {
 		chargeParams.put("body", orderService.generateOrderInfoStr(order));
 		if (channel.equalsIgnoreCase(CommonUtils.PayType.ALIPAY.getValue())) {
 			Map<String, Object> extraParams = new HashMap<String, Object>();
-			extraParams.put("success_url", "http://51daja.com/app/index.html#/tab/prog");
-			extraParams.put("cancel_url", "http://51daja.com/app");
+			extraParams.put("success_url", ApiWechatUtils.dajia_app_url + "#/tab/prog");
+			extraParams.put("cancel_url", ApiWechatUtils.dajia_app_url);
 			chargeParams.put("extra", extraParams);
 		}
 		if (channel.equalsIgnoreCase(CommonUtils.PayType.WECHAT.getValue())) {
@@ -282,8 +287,8 @@ public class ApiService {
 		Pingpp.apiKey = ApiPingppUtils.pingpp_live_key;
 		Map<String, Object> extraParams = new HashMap<String, Object>();
 		if (channel.equalsIgnoreCase(CommonUtils.PayType.ALIPAY.getValue())) {
-			extraParams.put("success_url", "http://51daja.com/app/index.html#/tab/prog");
-			extraParams.put("cancel_url", "http://51daja.com/app");
+			extraParams.put("success_url", ApiWechatUtils.dajia_app_url + "#/tab/prog");
+			extraParams.put("cancel_url", ApiWechatUtils.dajia_app_url);
 		}
 		if (channel.equalsIgnoreCase(CommonUtils.PayType.WECHAT.getValue())) {
 			logger.info("-------charge open_id:" + user.oauthUserId);
@@ -336,14 +341,15 @@ public class ApiService {
 					sb.append("成功邀请两位朋友可以获得20%额外折扣~~").append("\n");
 					sb.append("如果邀请10位好友，就免单啦✧*｡٩(ˊᗜˋ*)و✧*").append("\n");
 					sb.append(
-							"邀请成功与否可以在&lt;a href=\"http://51daja.com/app/index.html#/tab/prog\"&gt;打价实况&lt;/a&gt;查看哦！")
-							.append("\n");
+							"邀请成功与否可以在&lt;a href=\"" + ApiWechatUtils.dajia_app_url
+									+ "#/tab/prog\"&gt;打价实况&lt;/a&gt;查看哦！").append("\n");
 					content2User = sb.toString();
 				} else if (contentFromUser.indexOf("3") == 0) {
 					StringBuffer sb = new StringBuffer();
 					sb.append("问：商品何时发货？").append("\n\n");
 					sb.append(
-							"答：(•̀ω•́)✧正常情况下，打价网会在商品打价结束后的1-3天内发货哦~详细的物流跟踪可以在“我是打手-&lt;a href=\"http://51daja.com/app/index.html#/tab/mine/orders\"&gt;我的订单&lt;/a&gt;”里查看")
+							"答：(•̀ω•́)✧正常情况下，打价网会在商品打价结束后的1-3天内发货哦~详细的物流跟踪可以在“我是打手-&lt;a href=\""
+									+ ApiWechatUtils.dajia_app_url + "#/tab/mine/orders\"&gt;我的订单&lt;/a&gt;”里查看")
 							.append("\n");
 					content2User = sb.toString();
 				} else if (contentFromUser.indexOf("4") == 0) {
@@ -371,7 +377,6 @@ public class ApiService {
 					content2User = sb.toString();
 				}
 			}
-
 		} else if (null != msgType && msgType.equalsIgnoreCase("event")) {
 			String eventStr = CommonUtils.getSingleValueFromXml(doc, "Event");
 			// 用户关注公众号
@@ -379,25 +384,17 @@ public class ApiService {
 				StringBuffer sb = new StringBuffer();
 				sb.append("欢迎来打价~！").append("\n");
 				sb.append("每晚8点准时上新~！/坏笑").append("\n");
-
-				// 带参数的二维码扫描关注、
-				if (null != eventKeyStr) {
-					String qrscene = ApiWechatUtils.removeQrPrefix(eventKeyStr);
-					logger.info("qrscene: " + qrscene);
-				}
 				content2User = sb.toString();
+				// 带参数的二维码扫描关注
+				if (null != eventKeyStr) {
+					String productId = ApiWechatUtils.removeQrPrefix(eventKeyStr);
+					return generateArticleForProduct(appId, userOpenId, productId);
+				}
 			}
 			// 已关注用户扫描带参数二维码
 			else if (null != eventStr && eventStr.equalsIgnoreCase("SCAN")) {
-				String qrscene = eventStr;
-				logger.info("qrscene: " + qrscene);
-				// 图文消息，特殊处理，直接返回。
-				WechatArticleVO article = new WechatArticleVO();
-				article.title = "点击进入您关注的产品";
-				article.description = "产品编号 - " + qrscene;
-				article.picUrl = "http://dajia-static.b0.upaiyun.com/product_img/1473732890038_deceb36ad5fc66ddf52aada8973d14";
-				article.url = "http://51daja.com/app/index.html#/tab/prod/" + qrscene;
-				return generateWechatArticleReply(appId, userOpenId, article);
+				String productId = eventKeyStr;
+				return generateArticleForProduct(appId, userOpenId, productId);
 			}
 			// 用户点击菜单
 			else if (null != eventStr && eventStr.equalsIgnoreCase("CLICK")) {
@@ -438,6 +435,51 @@ public class ApiService {
 		return echoStr;
 	}
 
+	public void sendWechatTemplateMsg(String templateId, String userOpenId, String trackingId)
+			throws JsonParseException, JsonMappingException, IOException {
+		String accessToken = getWechatAccessToken();
+		String sendTemplateMsgUrl = ApiWechatUtils.wechat_send_template_msg_url + "?access_token=" + accessToken;
+		logger.info("send template msg url: " + sendTemplateMsgUrl);
+
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("touser", userOpenId);
+		map.put("template_id", templateId);
+		map.put("url", getMsgUrl(templateId));
+		map.put("data", getMsgDataMap(templateId, trackingId));
+		ObjectMapper mapper = new ObjectMapper();
+		String postContent = mapper.writeValueAsString(map);
+		logger.info("send template msg content: " + postContent);
+
+		RestTemplate restTemplate = new RestTemplate();
+		String retrunJsonStr = restTemplate.postForObject(sendTemplateMsgUrl, postContent, String.class);
+		logger.info("send template msg result: " + retrunJsonStr);
+	}
+
+	private Map<String, Object> getMsgDataMap(String templateId, String trackingId) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		if (templateId.equalsIgnoreCase(ApiWechatUtils.wechat_msg_template_order_success)) {
+			OrderVO orderVO = orderService.getOrderDetailByTrackingId(trackingId);
+			map.put("name", orderVO.productDesc);
+			map.put("remark", "支付金额：" + orderVO.actualPay + "元");
+		} else if (templateId.equalsIgnoreCase(ApiWechatUtils.wechat_msg_template_refund_success)) {
+			map.put("first", "");
+			map.put("reason", "");
+			map.put("refund", "");
+			map.put("remark", "");
+		}
+		return map;
+	}
+
+	private String getMsgUrl(String templateId) {
+		String msgUrl = "";
+		if (templateId.equalsIgnoreCase(ApiWechatUtils.wechat_msg_template_order_success)) {
+			msgUrl = ApiWechatUtils.dajia_app_url + "#/tab/prog";
+		} else if (templateId.equalsIgnoreCase(ApiWechatUtils.wechat_msg_template_refund_success)) {
+			msgUrl = ApiWechatUtils.dajia_app_url + "#/tab/prog";
+		}
+		return msgUrl;
+	}
+
 	private String generateWechatTxtReply(String appId, String userOpenId, String content) {
 		StringBuffer sb = new StringBuffer();
 		sb.append("<xml>");
@@ -468,5 +510,19 @@ public class ApiService {
 		sb.append("</Articles>");
 		sb.append("</xml>");
 		return sb.toString();
+	}
+
+	private String generateArticleForProduct(String appId, String userOpenId, String productId) {
+		logger.info("qrscene: " + productId);
+		ProductVO productVO = productService.loadProductDetail(Long.valueOf(productId));
+		if (null == productVO) {
+			return null;
+		}
+		WechatArticleVO article = new WechatArticleVO();
+		article.title = "点击前往购买您关注的产品";
+		article.description = productVO.name;
+		article.picUrl = productVO.imgUrl4List;
+		article.url = ApiWechatUtils.dajia_app_url + "#/tab/prod/" + productId;
+		return generateWechatArticleReply(appId, userOpenId, article);
 	}
 }
