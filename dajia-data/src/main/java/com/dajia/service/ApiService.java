@@ -456,11 +456,17 @@ public class ApiService {
 	}
 
 	private Map<String, Object> getMsgDataMap(String templateId, String trackingId) {
-		Map<String, Object> map = new HashMap<String, Object>();
+		Map<String, Object> map = new HashMap<>();
 		if (templateId.equalsIgnoreCase(ApiWechatUtils.wechat_msg_template_order_success)) {
 			OrderVO orderVO = orderService.getOrderDetailByTrackingId(trackingId);
-			map.put("name", orderVO.productDesc);
-			map.put("remark", "支付金额：" + orderVO.actualPay + "元");
+
+			Map<String, Object> nameMap = new HashMap<>();
+			nameMap.put("value", orderVO.productDesc);
+			map.put("name", nameMap);
+
+			Map<String, Object> remarkMap = new HashMap<>();
+			remarkMap.put("value", "支付金额：" + orderVO.actualPay + "元");
+			map.put("remark", remarkMap);
 		} else if (templateId.equalsIgnoreCase(ApiWechatUtils.wechat_msg_template_refund_success)) {
 			map.put("first", "");
 			map.put("reason", "");
