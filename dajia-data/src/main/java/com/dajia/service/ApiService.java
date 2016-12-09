@@ -521,7 +521,7 @@ public class ApiService {
 		WechatArticleVO article = new WechatArticleVO();
 		article.title = "点击前往购买您关注的产品";
 		article.description = productVO.name;
-		article.picUrl = productVO.imgUrl4List;
+		article.picUrl = productVO.imgUrl;
 		article.url = ApiWechatUtils.dajia_app_url + "#/tab/prod/" + productId;
 		return generateWechatArticleReply(appId, userOpenId, article);
 	}
