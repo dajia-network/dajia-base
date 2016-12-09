@@ -314,6 +314,7 @@ public class ApiService {
 		String msgType = CommonUtils.getSingleValueFromXml(doc, "MsgType");
 		String appId = CommonUtils.getSingleValueFromXml(doc, "ToUserName");
 		String userOpenId = CommonUtils.getSingleValueFromXml(doc, "FromUserName");
+		String eventKeyStr = CommonUtils.getSingleValueFromXml(doc, "EventKey");
 		String content2User = "";
 		String echoStr = "";
 
@@ -334,14 +335,15 @@ public class ApiService {
 					sb.append("答：您打价购买某件商品后分享这件商品给朋友，只要朋友也通过分享链接成功购买，您即可获得此商品最终成交价的10%作为分享额外折扣~").append("\n");
 					sb.append("成功邀请两位朋友可以获得20%额外折扣~~").append("\n");
 					sb.append("如果邀请10位好友，就免单啦✧*｡٩(ˊᗜˋ*)و✧*").append("\n");
-					sb.append("邀请成功与否可以在<a href=\"http://51daja.com/app/index.html#/tab/prog\">打价实况</a>查看哦！").append(
-							"\n");
+					sb.append(
+							"邀请成功与否可以在&lt;a href=\"http://51daja.com/app/index.html#/tab/prog\"&gt;打价实况&lt;/a&gt;查看哦！")
+							.append("\n");
 					content2User = sb.toString();
 				} else if (contentFromUser.indexOf("3") == 0) {
 					StringBuffer sb = new StringBuffer();
 					sb.append("问：商品何时发货？").append("\n\n");
 					sb.append(
-							"答：(•̀ω•́)✧正常情况下，打价网会在商品打价结束后的1-3天内发货哦~详细的物流跟踪可以在“我是打手-<a href=\"http://51daja.com/app/index.html#/tab/mine/orders\">我的订单</a>”里查看")
+							"答：(•̀ω•́)✧正常情况下，打价网会在商品打价结束后的1-3天内发货哦~详细的物流跟踪可以在“我是打手-&lt;a href=\"http://51daja.com/app/index.html#/tab/mine/orders\"&gt;我的订单&lt;/a&gt;”里查看")
 							.append("\n");
 					content2User = sb.toString();
 				} else if (contentFromUser.indexOf("4") == 0) {
@@ -377,11 +379,28 @@ public class ApiService {
 				StringBuffer sb = new StringBuffer();
 				sb.append("欢迎来打价~！").append("\n");
 				sb.append("每晚8点准时上新~！/坏笑").append("\n");
+
+				// 带参数的二维码扫描关注、
+				if (null != eventKeyStr) {
+					String qrscene = ApiWechatUtils.removeQrPrefix(eventKeyStr);
+					logger.info("qrscene: " + qrscene);
+				}
 				content2User = sb.toString();
+			}
+			// 已关注用户扫描带参数二维码
+			else if (null != eventStr && eventStr.equalsIgnoreCase("SCAN")) {
+				String qrscene = eventStr;
+				logger.info("qrscene: " + qrscene);
+				// 图文消息，特殊处理，直接返回。
+				WechatArticleVO article = new WechatArticleVO();
+				article.title = "点击进入您关注的产品";
+				article.description = "产品编号 - " + qrscene;
+				article.picUrl = "http://dajia-static.b0.upaiyun.com/product_img/1473732890038_deceb36ad5fc66ddf52aada8973d14";
+				article.url = "http://51daja.com/app/index.html#/tab/prod/" + qrscene;
+				return generateWechatArticleReply(appId, userOpenId, article);
 			}
 			// 用户点击菜单
 			else if (null != eventStr && eventStr.equalsIgnoreCase("CLICK")) {
-				String eventKeyStr = CommonUtils.getSingleValueFromXml(doc, "EventKey");
 				if (eventKeyStr.equalsIgnoreCase(ApiWechatUtils.wechat_menu_001)) {
 					// 常见问题
 					StringBuffer sb = new StringBuffer();
@@ -437,6 +456,7 @@ public class ApiService {
 		sb.append("<ToUserName>").append(userOpenId).append("</ToUserName>");
 		sb.append("<FromUserName>").append(appId).append("</FromUserName>");
 		sb.append("<CreateTime>").append(System.currentTimeMillis()).append("</CreateTime>");
+		sb.append("<MsgType>").append("news").append("</MsgType>");
 		sb.append("<ArticleCount>1</ArticleCount>");
 		sb.append("<Articles>");
 		sb.append("<item>");

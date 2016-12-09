@@ -1,14 +1,16 @@
 package com.dajia.util;
 
-import com.dajia.domain.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.dajia.domain.User;
 
 public class ApiWechatUtils {
 
@@ -96,5 +98,9 @@ public class ApiWechatUtils {
 			logger.error("http get error for url {}", url, e);
 			return null;
 		}
+	}
+
+	public static String removeQrPrefix(String eventKey) {
+		return StringUtils.substringAfter(eventKey, "qrscene_");
 	}
 }
