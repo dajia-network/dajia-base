@@ -77,13 +77,13 @@ public class RefundService {
 			logger.error(
 					"update Refund failed because findByOrderIdAndRefundTypeAndIsActive size is {} other than 1 at {}",
 					refunds.size(), System.currentTimeMillis());
-			return;
 		}
-		UserRefund refund = refunds.get(0);
-		refund.refundDate = new Date();
-		refund.refundStatus = refundStatus;
-		refundRepo.save(refund);
-		logger.info("update Refund success for order {} at {}", order.orderId, System.currentTimeMillis());
+		for (UserRefund refund : refunds) {
+			refund.refundDate = new Date();
+			refund.refundStatus = refundStatus;
+			refundRepo.save(refund);
+			logger.info("update Refund success for order {} at {}", order.orderId, System.currentTimeMillis());
+		}
 	}
 
 	public void retryRefund(String jobToken) {

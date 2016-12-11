@@ -70,5 +70,7 @@ public class ProductVO {
 	public List<ProductImage> productImages;
 
 	public List<Price> prices;
+	
+	public String qrcodeUrl;
 
 }

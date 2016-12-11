@@ -21,6 +21,7 @@ import org.springframework.util.CollectionUtils;
 
 import com.dajia.domain.ProductItem;
 import com.dajia.domain.User;
+import com.dajia.domain.UserCoupon;
 import com.dajia.domain.UserOrder;
 import com.dajia.domain.UserOrderItem;
 import com.dajia.domain.UserReward;
@@ -36,6 +37,7 @@ import com.dajia.repository.UserShareRepo;
 import com.dajia.util.CommonUtils;
 import com.dajia.util.CommonUtils.ActiveStatus;
 import com.dajia.util.CommonUtils.OrderStatus;
+import com.dajia.util.DajiaResult;
 import com.dajia.vo.LoginUserVO;
 import com.dajia.vo.OrderFilterVO;
 import com.dajia.vo.OrderVO;
@@ -82,6 +84,9 @@ public class OrderService {
 	@Autowired
 	private ApiService apiService;
 
+	@Autowired
+	private UserCouponService userCouponService;
+
 	@Transactional
 	public UserOrder generateRobotOrder(Long productId, Integer quantity) {
 		ProductVO product = productService.loadProductDetail(productId);
@@ -118,6 +123,7 @@ public class OrderService {
 		ov.orderDate = order.orderDate;
 		ov.unitPrice = order.unitPrice;
 		ov.totalPrice = order.totalPrice;
+		ov.actualPay = order.actualPay;
 		ov.postFee = order.postFee;
 		ov.logisticAgent = order.logisticAgent;
 		ov.logisticTrackingId = order.logisticTrackingId;
@@ -141,15 +147,30 @@ public class OrderService {
 		return orders;
 	}
 
+	public List<UserOrder> loadOrdersByUserId(Long userId, List<Integer> orderStatusList) {
+		List<UserOrder> orders = orderRepo.findByUserIdAndOrderStatusInAndIsActiveOrderByOrderDateDesc(userId,
+				orderStatusList, CommonUtils.ActiveStatus.YES.toString());
+		return orders;
+	}
+
 	public Page<UserOrder> loadOrdersByPage(Integer pageNum, OrderFilterVO orderFilter) {
 		Pageable pageable = new PageRequest(pageNum - 1, CommonUtils.page_item_perpage);
 		Page<UserOrder> orders = null;
 		String orderType = "all";
 		Integer orderStatus = -1;
+		String trackingId = null;
 		if (null != orderFilter) {
 			orderType = orderFilter.type;
 			orderStatus = orderFilter.status;
+			trackingId = orderFilter.trackingId;
 		}
+		// 如果搜索订单跟踪号直接返回结果
+		if (null != trackingId) {
+			orders = orderRepo.findByTrackingIdAndIsActiveOrderByOrderDateDesc(trackingId, ActiveStatus.YES.toString(),
+					pageable);
+			return orders;
+		}
+
 		List<Integer> orderStatusList = new ArrayList<Integer>();
 		if (orderStatus >= 0) {
 			orderStatusList.add(orderStatus);
@@ -245,8 +266,11 @@ public class OrderService {
 		/** 只能退不超过当前订单总价的金额 **/
 		// BigDecimal productItemTotalPrice = orderUnitPrice.multiply(new
 		// BigDecimal(orderQuantity));
-		if (refundVal.compareTo(order.totalPrice) > 0) {
-			refundVal = order.totalPrice;
+		if (null == order.actualPay) {
+			order.actualPay = order.totalPrice;
+		}
+		if (refundVal.compareTo(order.actualPay) > 0) {
+			refundVal = order.actualPay;
 		}
 
 		return refundVal;
@@ -358,6 +382,10 @@ public class OrderService {
 		}
 		OrderVO ov = this.convertOrderVO(order);
 		this.fillOrderVO(ov, order);
+		if (null != order.userCouponIds && order.userCouponIds.length() > 0) {
+			DajiaResult res = userCouponService.findCouponsByOrderId(order.orderId, order.userId);
+			ov.appliedCouponsObj = (List<UserCoupon>) res.data;
+		}
 		return ov;
 	}
 
@@ -395,8 +423,9 @@ public class OrderService {
 			comparePrice = userOrder.unitPrice;
 			progressList.add(pv);
 		}
-		List<UserReward> rewardList = rewardRepo.findTop5ByRefOrderIdAndRewardStatusOrderByCreatedDateDesc(ov.orderId,
-				CommonUtils.RewardStatus.PENDING.getKey());
+		List<UserReward> rewardList = rewardRepo
+				.findTop5ByRefOrderIdAndProductItemIdAndRewardStatusOrderByCreatedDateDesc(ov.orderId,
+						ov.productItemId, CommonUtils.RewardStatus.PENDING.getKey());
 		for (UserReward userReward : rewardList) {
 			ProgressVO pv = new ProgressVO();
 			pv.progressType = CommonUtils.refund_type_reward;
@@ -532,10 +561,12 @@ public class OrderService {
 		Long productItemId = null;
 		if (null != ov.productItemId) {
 			productItemId = ov.productItemId;
+			ov.orderItemId = 0L;
 		} else if (null != ov.orderItems) {
 			for (UserOrderItem oi : ov.orderItems) {
 				if (oi.productId.longValue() == productId.longValue()) {
 					productItemId = oi.productItemId;
+					ov.orderItemId = oi.orderItemId;
 					break;
 				}
 			}

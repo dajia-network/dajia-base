@@ -1,10 +1,14 @@
 package com.dajia.service;
 
-import com.dajia.domain.*;
-import com.dajia.repository.*;
-import com.dajia.util.CommonUtils;
-import com.dajia.vo.LoginUserVO;
-import com.dajia.vo.ProductVO;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +16,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.math.BigDecimal;
-import java.util.*;
+import com.dajia.domain.ProductItem;
+import com.dajia.domain.User;
+import com.dajia.domain.UserOrder;
+import com.dajia.domain.UserOrderItem;
+import com.dajia.domain.UserReward;
+import com.dajia.domain.UserShare;
+import com.dajia.repository.ProductItemRepo;
+import com.dajia.repository.UserOrderRepo;
+import com.dajia.repository.UserRepo;
+import com.dajia.repository.UserRewardRepo;
+import com.dajia.repository.UserShareRepo;
+import com.dajia.util.CommonUtils;
+import com.dajia.vo.LoginUserVO;
+import com.dajia.vo.ProductVO;
 
 @Service
 public class RewardService {
@@ -256,6 +272,11 @@ public class RewardService {
 				continue;
 			}
 
+			// 如果因为优惠券因素，rewardValue超过订单实际支付金额，将两者取小
+			if (null != userOrder.actualPay && userOrder.actualPay.compareTo(rewardValue) <= 0) {
+				rewardValue = userOrder.actualPay;
+			}
+
 			try {
 				apiService.applyRefund(userOrder.paymentId, rewardValue, CommonUtils.refund_type_reward);
 				batchUpdateRewardStatus(rwList, CommonUtils.RewardStatus.COMPLETED, jobToken);
@@ -285,7 +306,7 @@ public class RewardService {
 	 * @return
 	 */
 	private boolean batchUpdateRewardStatus(List<UserReward> userRewards, CommonUtils.RewardStatus rewardStatus,
-                                            String jobToken) {
+			String jobToken) {
 		if (null == rewardStatus) {
 			logger.error("batch update rewards status failed, status is null");
 			return false;

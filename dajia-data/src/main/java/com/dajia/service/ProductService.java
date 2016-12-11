@@ -39,6 +39,7 @@ import com.dajia.repository.UserOrderRepo;
 import com.dajia.repository.UserRewardRepo;
 import com.dajia.util.ApiKdtUtils;
 import com.dajia.util.ApiWdUtils;
+import com.dajia.util.ApiWechatUtils;
 import com.dajia.util.CommonUtils;
 import com.dajia.util.CommonUtils.ActiveStatus;
 import com.dajia.util.CommonUtils.OrderStatus;
@@ -274,7 +275,7 @@ public class ProductService {
 
 	@Transactional
 	public ProductVO loadProductDetailByItemId(Long itemId) {
-		logger.info("productItemId: " + itemId);
+		// logger.info("productItemId: " + itemId);
 		ProductItem pi = productItemRepo.findOne(itemId);
 		if (null == pi) {
 			return null;
@@ -489,7 +490,10 @@ public class ProductService {
 					logger.info("expire job {}, product item {} expired by time", jobToken, id);
 
 				} else if (productItem.stock <= 0) {
+					// 打群价产品售罄时不会直接结束打价
 					if (productItem.isPromoted.equalsIgnoreCase(CommonUtils.YesNoStatus.YES.toString())) {
+						productItem.fixTop = -10;
+						productItemRepo.save(productItem);
 						continue;
 					}
 					productItem.productStatus = ProductStatus.EXPIRED.getKey();
@@ -547,7 +551,7 @@ public class ProductService {
 			}
 			if (price.sold >= productItem.sold) {
 				BigDecimal priceOff = productItem.currentPrice.add(price.targetPrice.negate()).divide(
-						new BigDecimal(price.sold - productItem.sold + 1), 2, RoundingMode.HALF_UP);
+						new BigDecimal(price.sold - productItem.sold + quantity), 2, RoundingMode.HALF_UP);
 				productItem.currentPrice = productItem.currentPrice.add(priceOff.multiply(new BigDecimal(quantity))
 						.negate());
 				break;

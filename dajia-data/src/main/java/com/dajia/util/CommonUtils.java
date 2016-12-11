@@ -1,15 +1,5 @@
 package com.dajia.util;
 
-import com.dajia.domain.Price;
-import com.dajia.domain.Product;
-import com.dajia.domain.ProductImage;
-import com.dajia.domain.ProductItem;
-import com.dajia.vo.PaginationVO;
-import com.dajia.vo.ProductVO;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.data.domain.Page;
-
-import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -17,7 +7,27 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.w3c.dom.CharacterData;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import com.dajia.domain.Price;
+import com.dajia.domain.Product;
+import com.dajia.domain.ProductImage;
+import com.dajia.domain.ProductItem;
+import com.dajia.vo.PaginationVO;
+import com.dajia.vo.ProductVO;
+
 public class CommonUtils {
+	static Logger logger = LoggerFactory.getLogger(CommonUtils.class);
 
 	public static final String return_val_success = "success";
 	public static final String return_val_failed = "failed";
@@ -229,6 +239,28 @@ public class CommonUtils {
 		return ipAddr;
 	}
 
+	public static String getCharacterDataFromElement(Element e) {
+		Node child = e.getFirstChild();
+		if (child instanceof CharacterData) {
+			CharacterData cd = (CharacterData) child;
+			return cd.getData();
+		}
+		return "";
+	}
+
+	public static String getSingleValueFromXml(Document doc, String tagName) {
+		NodeList nodes = doc.getElementsByTagName(tagName);
+		if (null != nodes && nodes.getLength() > 0) {
+			Element element = (Element) nodes.item(0);
+			String val = getCharacterDataFromElement(element);
+			logger.info(tagName + ": " + val);
+			return val;
+		} else {
+			logger.error(tagName + " not found!");
+		}
+		return null;
+	}
+
 	public enum ActiveStatus {
 		YES("Y"), NO("N");
 		private String key;
@@ -372,7 +404,7 @@ public class CommonUtils {
 	}
 
 	public enum RewardStatus {
-		INVALID(0, "尚未生效"), PENDING(1, "待退款"), COMPLETED(2, "已退款"), CANCELLED(3, "已取消"), ERROR(3, "出错"), SALES(4, "推广");
+		INVALID(0, "尚未生效"), PENDING(1, "待退款"), COMPLETED(2, "已退款"), CANCELLED(5, "已取消"), ERROR(3, "出错"), SALES(4, "推广");
 		private Integer key;
 		private String value;
 
@@ -456,7 +488,7 @@ public class CommonUtils {
 
 	public enum LogisticAgent {
 		SHUNFENG("shunfeng", "顺丰快递"), TIANTIAN("tiantian", "天天快递"), ZHONGTONG("zhongtong", "中通快递"), SHENTONG(
-				"shentong", "申通快递"), YUNDA("yunda", "韵达快递"), HUITONG("huitongkuaidi", "百世汇通");
+				"shentong", "申通快递"), YUNDA("yunda", "韵达快递"), HUITONG("huitongkuaidi", "百世汇通"), EMS("ems", "邮政EMS");
 		private String key;
 		private String value;
 

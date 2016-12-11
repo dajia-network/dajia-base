@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.dajia.domain.UserContact;
+import com.dajia.domain.UserCoupon;
 import com.dajia.domain.UserOrderItem;
 import com.dajia.domain.UserRefund;
 import com.dajia.domain.UserShare;
@@ -45,6 +46,8 @@ public class OrderVO {
 	public BigDecimal unitPrice;
 
 	public BigDecimal totalPrice;
+
+	public BigDecimal actualPay;
 
 	public BigDecimal totalProductPrice;
 
@@ -95,4 +98,8 @@ public class OrderVO {
 	public List<UserOrderItem> orderItems;
 
 	public List<UserShare> userShares;
+
+	public List<Long> appliedCoupons;
+
+	public List<UserCoupon> appliedCouponsObj;
 }

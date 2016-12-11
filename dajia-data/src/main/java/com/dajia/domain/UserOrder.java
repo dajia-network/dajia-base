@@ -97,4 +97,17 @@ public class UserOrder extends BaseModel {
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "userOrder", fetch = FetchType.EAGER)
 	public List<UserOrderItem> orderItems;
+
+	/**
+	 * 这个订单消耗的优惠券列表
+	 */
+	@Column(name = "user_coupon_ids")
+	public String userCouponIds;
+
+	/**
+	 * 本订单实付的价格
+	 */
+	@Column(name = "actual_pay")
+	public BigDecimal actualPay;
+
 }

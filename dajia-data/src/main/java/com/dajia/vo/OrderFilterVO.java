@@ -5,4 +5,6 @@ public class OrderFilterVO {
 	public String type;
 	
 	public Integer status;
+
+	public String trackingId;
 }
