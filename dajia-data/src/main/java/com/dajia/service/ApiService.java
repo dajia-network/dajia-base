@@ -44,7 +44,7 @@ import com.pingplusplus.model.Refund;
 @Service
 public class ApiService {
 
-	Logger logger = LoggerFactory.getLogger(ApiService.class);
+	Logger logger = LoggerFactory.getLogger("RpcLog");
 
 	@Autowired
 	private PropertyRepo propertyRepo;
