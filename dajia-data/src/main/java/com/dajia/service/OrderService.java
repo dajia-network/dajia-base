@@ -234,7 +234,7 @@ public class OrderService {
 			refundVal = order.unitPrice.add(pv.currentPrice.negate()).multiply(new BigDecimal(order.quantity));
 
 			/** 计算Promote返利 **/
-			if (pv.isPromoted.equalsIgnoreCase(CommonUtils.YesNoStatus.YES.toString())) {
+			if (pv.isPromoted.equalsIgnoreCase(CommonUtils.Y)) {
 				List<UserShare> userShares = userShareRepo.findByOrderIdAndProductItemIdAndShareTypeOrderByShareIdDesc(
 						order.orderId, pv.productItemId, CommonUtils.ShareType.BUY_SHARE.getKey());
 

@@ -53,7 +53,7 @@ public class UserService {
 	}
 
 	public User oauthLogin(String oauthType, String oauthUserId, Map<String, String> userInfoMap, String state,
-                           HttpServletRequest request) {
+			HttpServletRequest request) {
 		User user = userRepo.findByOauthUserIdAndOauthType(oauthUserId, oauthType);
 		if (null == user) {
 			user = new User();
@@ -126,10 +126,12 @@ public class UserService {
 		loginUserVO.password = EncodingUtil.encode("SHA1", loginUserVO.password);
 
 		try {
-			User user = userRepo.findByUserNameAndPasswordAndIsActiveAndIsAdmin(loginUserVO.userName, loginUserVO.password, CommonUtils.Y, CommonUtils.Y);
+			User user = userRepo.findByUserNameAndPasswordAndIsActiveAndIsAdmin(loginUserVO.userName,
+					loginUserVO.password, CommonUtils.Y, CommonUtils.Y);
 
-			if(null == user) {
-				logger.error("login failed, type={}, user={}, error={}", "userPass", loginUserVO, "no such user, check username, password, active, isAdmin");
+			if (null == user) {
+				logger.error("login failed, type={}, user={}, error={}", "userPass", loginUserVO,
+						"no such user, check username, password, active, isAdmin");
 				return null;
 			}
 
@@ -140,12 +142,11 @@ public class UserService {
 			return user;
 
 		} catch (Exception ex) {
-			logger.error("login failed, type={}, user={}, error={}", "userPass", loginUserVO, "db error: " + ex.getMessage());
+			logger.error("login failed, type={}, user={}, error={}", "userPass", loginUserVO,
+					"db error: " + ex.getMessage());
 			return null;
 		}
 	}
-
-
 
 	public String userLogout(Long userId, HttpServletRequest request) {
 		String returnVal = CommonUtils.return_val_failed;
@@ -164,7 +165,7 @@ public class UserService {
 
 	public Page<User> loadSalesUsersByPage(Integer pageNum) {
 		Pageable pageable = new PageRequest(pageNum - 1, CommonUtils.page_item_perpage);
-		Page<User> users = userRepo.findByIsSalesAndIsActiveOrderByCreatedDateDesc(YesNoStatus.YES.toString(),
+		Page<User> users = userRepo.findByIsSalesAndIsActiveOrderByCreatedDateDesc(CommonUtils.Y,
 				ActiveStatus.YES.toString(), pageable);
 		return users;
 	}

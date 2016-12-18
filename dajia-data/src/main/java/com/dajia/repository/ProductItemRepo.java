@@ -13,14 +13,17 @@ public interface ProductItemRepo extends CrudRepository<ProductItem, Long> {
 
 	List<ProductItem> findByProductStatusAndIsActiveOrderByExpiredDateAsc(Integer productStatus, String isActive);
 
-	Page<ProductItem> findByProductStatusAndIsActiveOrderByExpiredDateAsc(Integer productStatus,
-																		  String isActive, Pageable pageable);
+	Page<ProductItem> findByProductStatusAndIsActiveOrderByExpiredDateAsc(Integer productStatus, String isActive,
+			Pageable pageable);
 
 	Page<ProductItem> findByIsActiveOrderByStartDateDesc(String isActive, Pageable pageable);
 
 	Page<ProductItem> findByProductInAndIsActiveOrderByStartDateDesc(List<Product> products, String isActive,
-																	 Pageable pageable);
+			Pageable pageable);
 
 	Page<ProductItem> findByProductStatusInAndStartDateBeforeAndIsActiveOrderByProductStatusAscFixTopDescExpiredDateAsc(
 			List<Integer> productStatusList, Date startDate, String isActive, Pageable pageable);
+
+	Page<ProductItem> findByProductInAndProductStatusInAndStartDateBeforeAndIsActiveOrderByProductStatusAscFixTopDescExpiredDateAsc(
+			List<Product> products, List<Integer> productStatusList, Date startDate, String isActive, Pageable pageable);
 }

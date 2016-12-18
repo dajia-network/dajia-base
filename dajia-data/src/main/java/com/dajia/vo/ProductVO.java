@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.dajia.domain.Price;
 import com.dajia.domain.ProductImage;
+import com.dajia.domain.ProductTag;
 
 public class ProductVO {
 
@@ -70,7 +71,9 @@ public class ProductVO {
 	public List<ProductImage> productImages;
 
 	public List<Price> prices;
-	
+
 	public String qrcodeUrl;
+
+	public List<ProductTag> tags;
 
 }
