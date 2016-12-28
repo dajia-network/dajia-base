@@ -159,10 +159,12 @@ public class OrderService {
 		String orderType = "all";
 		Integer orderStatus = -1;
 		String trackingId = null;
+		Long productId = null;
 		if (null != orderFilter) {
 			orderType = orderFilter.type;
 			orderStatus = orderFilter.status;
 			trackingId = orderFilter.trackingId;
+			productId = orderFilter.productId;
 		}
 		// 如果搜索订单跟踪号直接返回结果
 		if (null != trackingId) {
@@ -181,6 +183,13 @@ public class OrderService {
 			orderStatusList.add(CommonUtils.OrderStatus.CLOSED.getKey());
 			orderStatusList.add(CommonUtils.OrderStatus.CANCELLED.getKey());
 		}
+
+		// 根据产品ID返回结果
+		if (null != productId) {
+			orders = orderRepo.findOrdersByProductId(productId, orderStatusList, ActiveStatus.YES.toString(), pageable);
+			return orders;
+		}
+
 		// exclude pending payment orders
 		if (orderType.equals("all")) {
 			orders = orderRepo.findByOrderStatusInAndIsActiveOrderByOrderDateDesc(orderStatusList,

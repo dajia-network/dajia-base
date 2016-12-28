@@ -7,4 +7,6 @@ public class OrderFilterVO {
 	public Integer status;
 
 	public String trackingId;
+	
+	public Long productId;
 }
