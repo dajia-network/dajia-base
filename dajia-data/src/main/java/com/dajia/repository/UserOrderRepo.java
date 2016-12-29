@@ -54,7 +54,7 @@ public interface UserOrderRepo extends CrudRepository<UserOrder, Long> {
 
 	UserOrder findByOrderIdAndIsActive(Long orderId, String s);
 
-	@Query("select o from UserOrder o left join o.orderItems oi where (o.productId = ?1 or oi.productId = ?1) and o.orderStatus in (?2) and o.isActive = ?3")
+	@Query("select o from UserOrder o left join o.orderItems oi where (o.productId = ?1 or oi.productId = ?1) and o.orderStatus in (?2) and o.isActive = ?3 and o.userId != 0")
 	Page<UserOrder> findOrdersByProductId(Long productId, List<Integer> orderStatusList, String isActive,
 			Pageable pageable);
 
