@@ -527,6 +527,8 @@ public class CommonUtils {
 				returnStr = LogisticAgent.YUNDA.getValue();
 			} else if (key.equals(LogisticAgent.HUITONG.getKey())) {
 				returnStr = LogisticAgent.HUITONG.getValue();
+			} else if (key.equals(LogisticAgent.EMS.getKey())) {
+				returnStr = LogisticAgent.EMS.getValue();
 			}
 		}
 		return returnStr;

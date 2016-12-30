@@ -39,6 +39,7 @@ public class ApiWechatUtils {
 
 	public static final String wechat_msg_template_order_success = "82BfWMSfKDAitcS_-A7hR0K4EFTwMNkABvB1dazfVdE";
 	public static final String wechat_msg_template_refund_success = "-e6DwVqd81KmX_lEipb82TWw6UuoT8kC7YoJyalBCws";
+	public static final String wechat_msg_template_order_delivering = "P4Sj0lkJilne3CgIDHydfLEEPbMHGbPXrxPsp3IRd3o";
 
 	public static final String dajia_app_url = "http://51daja.com/app/index.html";
 
