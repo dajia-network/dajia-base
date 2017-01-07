@@ -132,8 +132,6 @@ public class CommonUtils {
 		}
 		if (null != req.productStatus) {
 			persist.productStatus = req.productStatus;
-		} else {
-			persist.productStatus = ProductStatus.INVALID.getKey();
 		}
 		if (null != req.originalPrice) {
 			if (persist.originalPrice == null || req.originalPrice.compareTo(persist.originalPrice) != 0) {
@@ -178,7 +176,9 @@ public class CommonUtils {
 		} else {
 			persist.tags = req.tags;
 		}
-		persist.imgUrl = req.imgUrl;
+		if (null != req.imgUrl) {
+			persist.imgUrl = req.imgUrl;
+		}
 		if (null != req.productImages) {
 			persist.imgUrl4List = null;
 			for (ProductImage productImage : req.productImages) {

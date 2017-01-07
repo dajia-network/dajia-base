@@ -724,4 +724,23 @@ public class ProductService {
 			}
 		}
 	}
+
+	public void bulkUpdateProduct(List<Long> productIds, ProductVO productVO) {
+		for (Long pid : productIds) {
+			Product product = null;
+			if (pid.longValue() != 0L) {
+				product = productRepo.findOne(pid);
+				if (null != product.productItems && product.productItems.size() > 0) {
+					for (ProductItem pi : product.productItems) {
+						if (pi.isActive.equalsIgnoreCase(CommonUtils.ActiveStatus.YES.toString())) {
+							CommonUtils.updateProductItemWithReq(pi, productVO);
+							break;
+						}
+					}
+					CommonUtils.updateProductWithReq(product, productVO);
+					productRepo.save(product);
+				}
+			}
+		}
+	}
 }
