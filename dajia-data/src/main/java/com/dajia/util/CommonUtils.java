@@ -170,11 +170,13 @@ public class CommonUtils {
 		if (null != req.description) {
 			persist.description = req.description;
 		}
-		if (null != persist.tags) {
-			persist.tags.clear();
-			persist.tags.addAll(req.tags);
-		} else {
-			persist.tags = req.tags;
+		if (null != req.tags) {
+			if (null != persist.tags) {
+				persist.tags.clear();
+				persist.tags.addAll(req.tags);
+			} else {
+				persist.tags = req.tags;
+			}
 		}
 		if (null != req.imgUrl) {
 			persist.imgUrl = req.imgUrl;
