@@ -152,8 +152,6 @@ public class CommonUtils {
 			} else {
 				persist.prices = req.prices;
 			}
-		} else if (null != persist.prices) {
-			persist.prices.clear();
 		}
 	}
 
