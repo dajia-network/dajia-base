@@ -26,6 +26,7 @@ import com.dajia.domain.Property;
 import com.dajia.domain.User;
 import com.dajia.domain.UserOrder;
 import com.dajia.repository.PropertyRepo;
+import com.dajia.repository.UserRepo;
 import com.dajia.util.ApiKdtUtils;
 import com.dajia.util.ApiPingppUtils;
 import com.dajia.util.ApiWdUtils;
@@ -50,6 +51,9 @@ public class ApiService {
 
 	@Autowired
 	private PropertyRepo propertyRepo;
+
+	@Autowired
+	private UserRepo userRepo;
 
 	@Autowired
 	private OrderService orderService;
@@ -390,6 +394,14 @@ public class ApiService {
 				// 带参数的二维码扫描关注
 				if (null != eventKeyStr) {
 					String productId = ApiWechatUtils.removeQrPrefix(eventKeyStr);
+					// 记录用户来源为网站
+					User user = userRepo.findByOauthUserIdAndOauthType(userOpenId, ApiWechatUtils.wechat_oauth_type);
+					if (null != user) {
+						user.source = ApiWechatUtils.user_source_web_page;
+						userRepo.save(user);
+					} else {
+						logger.error("Log Source - User not found: " + userOpenId);
+					}
 					return generateArticleForProduct(appId, userOpenId, productId);
 				}
 			}

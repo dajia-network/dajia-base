@@ -42,6 +42,8 @@ public class ApiWechatUtils {
 	public static final String wechat_msg_template_order_delivering = "P4Sj0lkJilne3CgIDHydfLEEPbMHGbPXrxPsp3IRd3o";
 
 	public static final String dajia_app_url = "http://51daja.com/app/index.html";
+	
+	public static final String user_source_web_page = "web page";
 
 	public static void updateWechatUserInfo(User user, Map<String, String> userInfoMap) {
 		user.userName = userInfoMap.get("nickname");
