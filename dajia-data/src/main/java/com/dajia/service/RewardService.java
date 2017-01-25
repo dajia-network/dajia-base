@@ -106,7 +106,7 @@ public class RewardService {
 				} else {
 					User rewardUser = userRepo.findOne(ur.refUserId);
 					if (null != rewardUser
-							&& rewardUser.isSales.equalsIgnoreCase(CommonUtils.YesNoStatus.YES.toString())) {
+							&& rewardUser.isSales.equalsIgnoreCase(CommonUtils.Y)) {
 						ur.rewardStatus = CommonUtils.RewardStatus.SALES.getKey();
 						ur.rewardDate = new Date();
 					} else {

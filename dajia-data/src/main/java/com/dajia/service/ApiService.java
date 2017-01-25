@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Document;
@@ -24,6 +26,7 @@ import com.dajia.domain.Property;
 import com.dajia.domain.User;
 import com.dajia.domain.UserOrder;
 import com.dajia.repository.PropertyRepo;
+import com.dajia.repository.UserRepo;
 import com.dajia.util.ApiKdtUtils;
 import com.dajia.util.ApiPingppUtils;
 import com.dajia.util.ApiWdUtils;
@@ -48,6 +51,9 @@ public class ApiService {
 
 	@Autowired
 	private PropertyRepo propertyRepo;
+
+	@Autowired
+	private UserRepo userRepo;
 
 	@Autowired
 	private OrderService orderService;
@@ -388,6 +394,14 @@ public class ApiService {
 				// 带参数的二维码扫描关注
 				if (null != eventKeyStr) {
 					String productId = ApiWechatUtils.removeQrPrefix(eventKeyStr);
+					// 记录用户来源为网站
+					User user = userRepo.findByOauthUserIdAndOauthType(userOpenId, ApiWechatUtils.wechat_oauth_type);
+					if (null != user) {
+						user.source = ApiWechatUtils.user_source_web_page;
+						userRepo.save(user);
+					} else {
+						logger.error("Log Source - User not found: " + userOpenId);
+					}
 					return generateArticleForProduct(appId, userOpenId, productId);
 				}
 			}
@@ -451,27 +465,39 @@ public class ApiService {
 		logger.info("send template msg content: " + postContent);
 
 		RestTemplate restTemplate = new RestTemplate();
+		restTemplate.getMessageConverters().add(0, new StringHttpMessageConverter(Charset.forName("UTF-8")));
 		String retrunJsonStr = restTemplate.postForObject(sendTemplateMsgUrl, postContent, String.class);
 		logger.info("send template msg result: " + retrunJsonStr);
 	}
 
 	private Map<String, Object> getMsgDataMap(String templateId, String trackingId) {
 		Map<String, Object> map = new HashMap<>();
+		OrderVO orderVO = orderService.getOrderDetailByTrackingId(trackingId);
 		if (templateId.equalsIgnoreCase(ApiWechatUtils.wechat_msg_template_order_success)) {
-			OrderVO orderVO = orderService.getOrderDetailByTrackingId(trackingId);
-
-			Map<String, Object> nameMap = new HashMap<>();
-			nameMap.put("value", orderVO.productDesc);
-			map.put("name", nameMap);
-
-			Map<String, Object> remarkMap = new HashMap<>();
-			remarkMap.put("value", "支付金额：" + orderVO.actualPay + "元");
-			map.put("remark", remarkMap);
+			Map<String, Object> name = new HashMap<>();
+			name.put("value", orderVO.productDesc);
+			map.put("name", name);
+			Map<String, Object> remark = new HashMap<>();
+			remark.put("value", "支付金额：" + orderVO.actualPay + "元");
+			map.put("remark", remark);
 		} else if (templateId.equalsIgnoreCase(ApiWechatUtils.wechat_msg_template_refund_success)) {
-			map.put("first", "");
-			map.put("reason", "");
-			map.put("refund", "");
-			map.put("remark", "");
+			map.put("first", "您好，您对微信影城影票的抢购未成功，已退款。");
+			map.put("reason", "未抢购成功");
+			map.put("refund", "70元");
+			map.put("remark", "备注：如有疑问，请致电13912345678联系我们，或回复M来了解详情。");
+		} else if (templateId.equalsIgnoreCase(ApiWechatUtils.wechat_msg_template_order_delivering)) {
+			Map<String, Object> first = new HashMap<>();
+			first.put("value", "亲，宝贝已经启程了，好想快点来到你身边~");
+			map.put("first", first);
+			Map<String, Object> delivername = new HashMap<>();
+			delivername.put("value", CommonUtils.getLogisticAgentStr(orderVO.logisticAgent));
+			map.put("delivername", delivername);
+			Map<String, Object> ordername = new HashMap<>();
+			ordername.put("value", orderVO.logisticTrackingId);
+			map.put("ordername", ordername);
+			Map<String, Object> remark = new HashMap<>();
+			remark.put("value", "商品信息：" + orderVO.productDesc);
+			map.put("remark", remark);
 		}
 		return map;
 	}
@@ -482,6 +508,8 @@ public class ApiService {
 			msgUrl = ApiWechatUtils.dajia_app_url + "#/tab/prog";
 		} else if (templateId.equalsIgnoreCase(ApiWechatUtils.wechat_msg_template_refund_success)) {
 			msgUrl = ApiWechatUtils.dajia_app_url + "#/tab/prog";
+		} else if (templateId.equalsIgnoreCase(ApiWechatUtils.wechat_msg_template_order_delivering)) {
+			msgUrl = ApiWechatUtils.dajia_app_url + "#/tab/orders";
 		}
 		return msgUrl;
 	}

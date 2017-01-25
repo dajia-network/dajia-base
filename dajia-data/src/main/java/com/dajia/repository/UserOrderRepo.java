@@ -1,12 +1,14 @@
 package com.dajia.repository;
 
-import com.dajia.domain.UserOrder;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.CrudRepository;
-
 import java.util.List;
 import java.util.Set;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.CrudRepository;
+
+import com.dajia.domain.UserOrder;
 
 public interface UserOrderRepo extends CrudRepository<UserOrder, Long> {
 
@@ -51,4 +53,9 @@ public interface UserOrderRepo extends CrudRepository<UserOrder, Long> {
 			Pageable pageable);
 
 	UserOrder findByOrderIdAndIsActive(Long orderId, String s);
+
+	@Query("select o from UserOrder o left join o.orderItems oi where (o.productId = ?1 or oi.productId = ?1) and o.orderStatus in (?2) and o.isActive = ?3 and o.userId != 0")
+	Page<UserOrder> findOrdersByProductId(Long productId, List<Integer> orderStatusList, String isActive,
+			Pageable pageable);
+
 }

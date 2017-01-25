@@ -1,5 +1,12 @@
 package com.dajia.service;
 
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.dajia.domain.User;
 import com.dajia.domain.UserOrder;
 import com.dajia.domain.UserOrderItem;
@@ -8,12 +15,6 @@ import com.dajia.repository.UserRepo;
 import com.dajia.repository.UserShareRepo;
 import com.dajia.util.CommonUtils;
 import com.dajia.vo.ProductVO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class UserShareService {
@@ -54,7 +55,7 @@ public class UserShareService {
 		if (null == product || product.productStatus != CommonUtils.ProductStatus.VALID.getKey()) {
 			return;
 		}
-		if (!product.isPromoted.equalsIgnoreCase(CommonUtils.YesNoStatus.YES.toString())) {
+		if (!product.isPromoted.equalsIgnoreCase(CommonUtils.Y)) {
 			return;
 		}
 		List<UserShare> userShares = userShareRepo.findByUserIdAndVisitUserIdAndProductItemIdAndShareType(

@@ -39,7 +39,6 @@ import com.dajia.repository.UserOrderRepo;
 import com.dajia.repository.UserRewardRepo;
 import com.dajia.util.ApiKdtUtils;
 import com.dajia.util.ApiWdUtils;
-import com.dajia.util.ApiWechatUtils;
 import com.dajia.util.CommonUtils;
 import com.dajia.util.CommonUtils.ActiveStatus;
 import com.dajia.util.CommonUtils.OrderStatus;
@@ -259,6 +258,7 @@ public class ProductService {
 		productVO.imgUrl = product.imgUrl;
 		productVO.imgUrl4List = product.imgUrl4List;
 		productVO.productImages = product.productImages;
+		productVO.tags = product.tags;
 		productImageSort(productVO.productImages);
 		return productVO;
 	}
@@ -335,6 +335,21 @@ public class ProductService {
 		return productItems;
 	}
 
+	public Page<ProductItem> loadTagProductsByPage(Long tagId, Integer pageNum) {
+		List<Product> products = this.loadProductIdsByTag(tagId);
+		List<Integer> productStatusList = new ArrayList<Integer>();
+		productStatusList.add(ProductStatus.VALID.getKey());
+		productStatusList.add(ProductStatus.EXPIRED.getKey());
+		Pageable pageable = new PageRequest(pageNum - 1, CommonUtils.page_item_perpage_5);
+		Page<ProductItem> productItems = productItemRepo
+				.findByProductInAndProductStatusInAndStartDateBeforeAndIsActiveOrderByProductStatusAscFixTopDescExpiredDateAsc(
+						products, productStatusList, new Date(), ActiveStatus.YES.toString(), pageable);
+		for (ProductItem productItem : productItems) {
+			calcPrice(productItem);
+		}
+		return productItems;
+	}
+
 	public Page<ProductItem> loadProductsByPage(Integer pageNum) {
 		Pageable pageable = new PageRequest(pageNum - 1, CommonUtils.page_item_perpage);
 		Page<ProductItem> productItems = productItemRepo.findByIsActiveOrderByStartDateDesc(
@@ -358,6 +373,12 @@ public class ProductService {
 
 	public List<Product> loadProductIdsByKeyword(String keyword) {
 		List<Product> products = productRepo.findByNameContainingAndIsActiveOrderByCreatedDateDesc(keyword,
+				ActiveStatus.YES.toString());
+		return products;
+	}
+
+	public List<Product> loadProductIdsByTag(Long tagId) {
+		List<Product> products = productRepo.findByTags_TagIdAndIsActiveOrderByCreatedDateDesc(tagId,
 				ActiveStatus.YES.toString());
 		return products;
 	}
@@ -491,7 +512,7 @@ public class ProductService {
 
 				} else if (productItem.stock <= 0) {
 					// 打群价产品售罄时不会直接结束打价
-					if (productItem.isPromoted.equalsIgnoreCase(CommonUtils.YesNoStatus.YES.toString())) {
+					if (productItem.isPromoted.equalsIgnoreCase(CommonUtils.Y)) {
 						productItem.fixTop = -10;
 						productItemRepo.save(productItem);
 						continue;
@@ -699,6 +720,25 @@ public class ProductService {
 						imgList.set(j, imgList.get(j + 1));
 						imgList.set(j + 1, temp);
 					}
+				}
+			}
+		}
+	}
+
+	public void bulkUpdateProduct(List<Long> productIds, ProductVO productVO) {
+		for (Long pid : productIds) {
+			Product product = null;
+			if (pid.longValue() != 0L) {
+				product = productRepo.findOne(pid);
+				if (null != product.productItems && product.productItems.size() > 0) {
+					for (ProductItem pi : product.productItems) {
+						if (pi.isActive.equalsIgnoreCase(CommonUtils.ActiveStatus.YES.toString())) {
+							CommonUtils.updateProductItemWithReq(pi, productVO);
+							break;
+						}
+					}
+					CommonUtils.updateProductWithReq(product, productVO);
+					productRepo.save(product);
 				}
 			}
 		}

@@ -61,6 +61,9 @@ public class User extends BaseModel {
 
 	@Column(name = "last_visit_ip")
 	public String lastVisitIP;
+	
+	@Column(name = "source")
+	public String source;
 
 	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user", fetch = FetchType.LAZY)
 	public List<UserContact> userContacts;
