@@ -201,6 +201,17 @@ public class OrderService {
 		return orders;
 	}
 
+	public List<UserOrder> loadAllValidOrders() {
+		List<Integer> orderStatusList = new ArrayList<Integer>();
+		orderStatusList.add(CommonUtils.OrderStatus.PAIED.getKey());
+		orderStatusList.add(CommonUtils.OrderStatus.DELEVERING.getKey());
+		orderStatusList.add(CommonUtils.OrderStatus.DELEVRIED.getKey());
+
+		List<UserOrder> orders = orderRepo.findTop100ByOrderStatusInAndUserIdNotAndIsActiveOrderByOrderDateDesc(
+				orderStatusList, 0L, ActiveStatus.YES.toString());
+		return orders;
+	}
+
 	public void fillOrderVO(OrderVO ov, UserOrder order) {
 		User user = userRepo.findByUserId(order.userId);
 		if (null != user) {
