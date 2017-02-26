@@ -207,7 +207,7 @@ public class OrderService {
 		orderStatusList.add(CommonUtils.OrderStatus.DELEVERING.getKey());
 		orderStatusList.add(CommonUtils.OrderStatus.DELEVRIED.getKey());
 
-		List<UserOrder> orders = orderRepo.findTop100ByOrderStatusInAndUserIdNotAndIsActiveOrderByOrderDateDesc(
+		List<UserOrder> orders = orderRepo.findTop1000ByOrderStatusInAndUserIdNotAndIsActiveOrderByOrderDateDesc(
 				orderStatusList, 0L, ActiveStatus.YES.toString());
 		return orders;
 	}
