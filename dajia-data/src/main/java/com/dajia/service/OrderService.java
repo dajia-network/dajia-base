@@ -213,11 +213,14 @@ public class OrderService {
 	}
 
 	public void fillOrderVO(OrderVO ov, UserOrder order) {
+		long currentTime = System.currentTimeMillis();
 		User user = userRepo.findByUserId(order.userId);
 		if (null != user) {
 			ov.userName = user.userName;
 			ov.userHeadImgUrl = user.headImgUrl;
 		}
+		logger.info("1.2.1 findByUserId: " + (System.currentTimeMillis() - currentTime) +" ms");
+		currentTime = System.currentTimeMillis();
 		if (null != ov.productItemId) {
 			ov.productVO = productService.loadProductDetailByItemId(ov.productItemId);
 			if (null != ov.productVO) {
@@ -225,6 +228,8 @@ public class OrderService {
 				ov.rewardValue = rewardService.calculateRewards(ov.orderId, ov.productVO);
 				ov.refundValue = calculateRefundValue(order);
 			}
+			logger.info("1.2.1.1 loadProductDetailByItemId: " + (System.currentTimeMillis() - currentTime) +" ms");
+			currentTime = System.currentTimeMillis();
 		} else {
 			ov.orderItems = order.orderItems;
 			ov.totalProductPrice = new BigDecimal(0);
@@ -236,6 +241,8 @@ public class OrderService {
 				ov.rewardValue = ov.rewardValue.add(rewardService.calculateRewards(ov.orderId, oi.productVO));
 			}
 			ov.refundValue = calculateRefundValue(order);
+			logger.info("1.2.1.2 calculateRefundValue: " + (System.currentTimeMillis() - currentTime) +" ms");
+			currentTime = System.currentTimeMillis();
 		}
 	}
 
