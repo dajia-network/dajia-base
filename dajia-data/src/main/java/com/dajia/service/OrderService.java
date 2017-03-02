@@ -212,6 +212,19 @@ public class OrderService {
 		return orders;
 	}
 
+	public List<OrderVO> loadAllValidOrderVO() {
+		List<Integer> orderStatusList = new ArrayList<Integer>();
+		orderStatusList.add(CommonUtils.OrderStatus.PAIED.getKey());
+		orderStatusList.add(CommonUtils.OrderStatus.DELEVERING.getKey());
+		orderStatusList.add(CommonUtils.OrderStatus.DELEVRIED.getKey());
+
+		List<Object[]> res = orderRepo.findTop1000ByAsArrayAndSort(orderStatusList);
+		for (Object[] objects : res) {
+			System.out.println(objects);
+		}
+		return null;
+	}
+
 	public void fillOrderVO(OrderVO ov, UserOrder order) {
 		long currentTime = System.currentTimeMillis();
 		User user = userRepo.findByUserId(order.userId);
@@ -219,7 +232,7 @@ public class OrderService {
 			ov.userName = user.userName;
 			ov.userHeadImgUrl = user.headImgUrl;
 		}
-		logger.info("1.2.1 findByUserId: " + (System.currentTimeMillis() - currentTime) +" ms");
+		logger.info("1.2.1 findByUserId: " + (System.currentTimeMillis() - currentTime) + " ms");
 		currentTime = System.currentTimeMillis();
 		if (null != ov.productItemId) {
 			ov.productVO = productService.loadProductDetailByItemId(ov.productItemId);
@@ -228,7 +241,7 @@ public class OrderService {
 				ov.rewardValue = rewardService.calculateRewards(ov.orderId, ov.productVO);
 				ov.refundValue = calculateRefundValue(order);
 			}
-			logger.info("1.2.1.1 loadProductDetailByItemId: " + (System.currentTimeMillis() - currentTime) +" ms");
+			logger.info("1.2.2.1 loadProductDetailByItemId: " + (System.currentTimeMillis() - currentTime) + " ms");
 			currentTime = System.currentTimeMillis();
 		} else {
 			ov.orderItems = order.orderItems;
@@ -241,7 +254,7 @@ public class OrderService {
 				ov.rewardValue = ov.rewardValue.add(rewardService.calculateRewards(ov.orderId, oi.productVO));
 			}
 			ov.refundValue = calculateRefundValue(order);
-			logger.info("1.2.1.2 calculateRefundValue: " + (System.currentTimeMillis() - currentTime) +" ms");
+			logger.info("1.2.2.2 calculateRefundValue: " + (System.currentTimeMillis() - currentTime) + " ms");
 			currentTime = System.currentTimeMillis();
 		}
 	}
