@@ -207,7 +207,7 @@ public class OrderService {
 		orderStatusList.add(CommonUtils.OrderStatus.DELEVERING.getKey());
 		orderStatusList.add(CommonUtils.OrderStatus.DELEVRIED.getKey());
 
-		List<UserOrder> orders = orderRepo.findTop1000ByOrderStatusInAndUserIdNotAndIsActiveOrderByOrderDateDesc(
+		List<UserOrder> orders = orderRepo.findTop100ByOrderStatusInAndUserIdNotAndIsActiveOrderByOrderDateDesc(
 				orderStatusList, 0L, ActiveStatus.YES.toString());
 		return orders;
 	}
@@ -220,7 +220,9 @@ public class OrderService {
 
 		List<Object[]> res = orderRepo.findTop1000ByAsArrayAndSort(orderStatusList);
 		for (Object[] objects : res) {
-			System.out.println(objects);
+			for (Object object : objects) {
+				System.out.println(String.valueOf(object));
+			}
 		}
 		return null;
 	}
