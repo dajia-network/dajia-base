@@ -696,13 +696,13 @@ public class ProductService {
 
 	public boolean validateStock(OrderVO orderVO) {
 		if (null != orderVO.productId) {
-			if (this.loadProductDetail(orderVO.productId).stock <= 0) {
+			if (this.loadProductDetail(orderVO.productId).stock - orderVO.quantity < 0) {
 				return false;
 			}
 		} else {
 			if (null != orderVO.cartItems) {
 				for (CartItemVO cartItem : orderVO.cartItems) {
-					if (this.loadProductDetail(cartItem.productId).stock <= 0) {
+					if (this.loadProductDetail(cartItem.productId).stock - cartItem.quantity < 0) {
 						return false;
 					}
 				}
