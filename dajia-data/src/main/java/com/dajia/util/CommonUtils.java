@@ -1,6 +1,7 @@
 package com.dajia.util;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
@@ -55,6 +56,11 @@ public class CommonUtils {
 	public static final String ref_order_id = "refOrderId";
 	public static final String null_string = "null";
 	public static final String state_string = "STATE";
+
+	public static final String VALUE_NA = "N/A";
+
+	public static String Y = YesNoStatus.YES.toString();
+	public static String N = YesNoStatus.NO.toString();
 
 	public static String stringCharsetConvert(String str, String charset) {
 		ByteBuffer bf = Charset.forName(charset).encode(str);
@@ -591,6 +597,27 @@ public class CommonUtils {
 		}
 	}
 
-	public static String Y = YesNoStatus.YES.toString();
-	public static String N = YesNoStatus.NO.toString();
+	public static String displayInteger(Integer number) {
+		if (null == number) {
+			return VALUE_NA;
+		} else {
+			return String.valueOf(number);
+		}
+	}
+
+	public static String displayLong(Long number) {
+		if (null == number) {
+			return VALUE_NA;
+		} else {
+			return String.valueOf(number);
+		}
+	}
+
+	public static String displayBigDecimal(BigDecimal number) {
+		if (null == number) {
+			return VALUE_NA;
+		} else {
+			return number.toString();
+		}
+	}
 }

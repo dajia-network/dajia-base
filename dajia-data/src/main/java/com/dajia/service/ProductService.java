@@ -696,13 +696,13 @@ public class ProductService {
 
 	public boolean validateStock(OrderVO orderVO) {
 		if (null != orderVO.productId) {
-			if (this.loadProductDetail(orderVO.productId).stock <= 0) {
+			if (this.loadProductDetail(orderVO.productId).stock - orderVO.quantity < 0) {
 				return false;
 			}
 		} else {
 			if (null != orderVO.cartItems) {
 				for (CartItemVO cartItem : orderVO.cartItems) {
-					if (this.loadProductDetail(cartItem.productId).stock <= 0) {
+					if (this.loadProductDetail(cartItem.productId).stock - cartItem.quantity < 0) {
 						return false;
 					}
 				}
@@ -729,6 +729,9 @@ public class ProductService {
 		for (Long pid : productIds) {
 			Product product = null;
 			if (pid.longValue() != 0L) {
+				// republish if expired
+				this.republishProduct(pid);
+				// update product info
 				product = productRepo.findOne(pid);
 				if (null != product.productItems && product.productItems.size() > 0) {
 					for (ProductItem pi : product.productItems) {
@@ -742,5 +745,44 @@ public class ProductService {
 				}
 			}
 		}
+	}
+
+	public void republishProduct(Long productId) {
+		Product product = productRepo.findOne(productId);
+		BigDecimal originalPrice = null;
+		BigDecimal postFee = null;
+		List<Price> prices = null;
+		for (ProductItem pi : product.productItems) {
+			if (pi.isActive.equalsIgnoreCase(CommonUtils.ActiveStatus.YES.toString())) {
+				// validate if expired
+				if (pi.productStatus != CommonUtils.ProductStatus.EXPIRED.getKey()) {
+					return;
+				}
+				logger.info("product " + productId + " expired. Now republishing...");
+				originalPrice = pi.originalPrice;
+				postFee = pi.postFee;
+				pi.isActive = CommonUtils.ActiveStatus.NO.toString();
+				prices = new ArrayList<Price>();
+				for (Price item : pi.prices) {
+					prices.add(item.clone());
+				}
+			}
+		}
+		// init new product item
+		ProductItem pi = new ProductItem();
+		pi.product = product;
+		pi.originalPrice = originalPrice;
+		pi.currentPrice = originalPrice;
+		pi.postFee = postFee;
+		pi.productStatus = CommonUtils.ProductStatus.INVALID.getKey();
+		pi.isActive = CommonUtils.ActiveStatus.YES.toString();
+		if (null != prices) {
+			for (Price price : prices) {
+				price.productItem = pi;
+			}
+		}
+		pi.prices = prices;
+		product.productItems.add(pi);
+		productRepo.save(product);
 	}
 }

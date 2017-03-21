@@ -6,8 +6,4 @@ public class ExportConfig {
 
 	public Long recordLimit;
 
-	public ExportConfig(String resource) {
-		this.resource = resource;
-		this.recordLimit = -1L;
-	}
 }

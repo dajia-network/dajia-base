@@ -45,6 +45,9 @@ public interface UserOrderRepo extends CrudRepository<UserOrder, Long> {
 
 	Page<UserOrder> findByOrderStatusInAndUserIdNotAndIsActiveOrderByOrderDateDesc(List<Integer> orderStatusList,
 			Long userId, String isActive, Pageable pageable);
+	
+	List<UserOrder> findTop100ByOrderStatusInAndUserIdNotAndIsActiveOrderByOrderDateDesc(List<Integer> orderStatusList,
+			Long userId, String isActive);
 
 	Page<UserOrder> findByOrderIdInAndIsActiveOrderByOrderDateDesc(Set<Long> orderIds, String isActive,
 			Pageable pageable);
@@ -57,5 +60,8 @@ public interface UserOrderRepo extends CrudRepository<UserOrder, Long> {
 	@Query("select o from UserOrder o left join o.orderItems oi where (o.productId = ?1 or oi.productId = ?1) and o.orderStatus in (?2) and o.isActive = ?3 and o.userId != 0")
 	Page<UserOrder> findOrdersByProductId(Long productId, List<Integer> orderStatusList, String isActive,
 			Pageable pageable);
+	
+	@Query("select o.orderId, oi.orderItemId from UserOrder o left join o.orderItems oi where o.orderStatus in (?1) and o.isActive = 'Y' order by o.orderDate")
+	  List<Object[]> findTop1000ByAsArrayAndSort(List<Integer> orderStatusList);
 
 }
